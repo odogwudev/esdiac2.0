@@ -3,187 +3,162 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Esdiac — KMP Architecture v2</title>
+<title>Esdiac — KMP Architecture v3</title>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
 :root {
-  --navy:    #091929;
-  --navy2:   #0E2338;
-  --navy3:   #163150;
-  --blue:    #2D7DD2;
-  --blue2:   #4A90D9;
-  --cyan:    #38C9E8;
-  --white:   #ECF4FC;
-  --muted:   #6A8FAD;
-  --border:  rgba(56,201,232,0.18);
-  --green:   #3DD68C;
-  --orange:  #FFAB4A;
-  --purple:  #9B72F5;
-  --pink:    #F472B6;
-  --red:     #F87171;
+  --navy:   #091929; --navy2: #0E2338; --navy3: #163150;
+  --blue:   #2D7DD2; --blue2: #4A90D9;
+  --cyan:   #38C9E8; --white: #ECF4FC; --muted: #6A8FAD;
+  --border: rgba(56,201,232,.18);
+  --green:  #3DD68C; --orange:#FFAB4A; --purple:#9B72F5;
+  --pink:   #F472B6; --red:   #F87171; --yellow:#FCD34D;
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-html{scroll-behavior:smooth}
 body{
   background:var(--navy);color:var(--white);
   font-family:'Syne',sans-serif;min-height:100vh;overflow-x:hidden;
   background-image:
-    radial-gradient(ellipse 70% 55% at 15% 0%, rgba(45,125,210,.1) 0%,transparent 65%),
-    radial-gradient(ellipse 50% 40% at 85% 100%, rgba(56,201,232,.07) 0%,transparent 60%);
+    radial-gradient(ellipse 70% 55% at 15% 0%,rgba(45,125,210,.1) 0%,transparent 65%),
+    radial-gradient(ellipse 50% 40% at 85% 100%,rgba(56,201,232,.07) 0%,transparent 60%);
 }
 body::before{
   content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
   background-image:
-    linear-gradient(rgba(56,201,232,.03) 1px,transparent 1px),
-    linear-gradient(90deg,rgba(56,201,232,.03) 1px,transparent 1px);
+    linear-gradient(rgba(56,201,232,.025) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(56,201,232,.025) 1px,transparent 1px);
   background-size:48px 48px;
 }
 
-/* ── HEADER ── */
+/* HEADER */
 header{
-  position:relative;z-index:10;padding:44px 64px 36px;
+  position:relative;z-index:10;padding:40px 60px 32px;
   border-bottom:1px solid var(--border);
   display:flex;align-items:flex-end;justify-content:space-between;
-  background:rgba(9,25,41,.75);backdrop-filter:blur(14px);
+  background:rgba(9,25,41,.8);backdrop-filter:blur(14px);
 }
 .logo-wrap{display:flex;align-items:center;gap:18px}
 .logo{
-  width:54px;height:54px;border-radius:13px;
+  width:52px;height:52px;border-radius:13px;
   background:linear-gradient(135deg,var(--blue) 0%,var(--cyan) 100%);
-  display:grid;place-items:center;font-size:21px;font-weight:800;color:#fff;
+  display:grid;place-items:center;font-size:20px;font-weight:800;color:#fff;
   box-shadow:0 0 28px rgba(56,201,232,.5);
-  animation:logoGlow 3.5s ease infinite;
+  animation:glow 3.5s ease infinite;
 }
-@keyframes logoGlow{0%,100%{box-shadow:0 0 20px rgba(56,201,232,.4)}50%{box-shadow:0 0 44px rgba(56,201,232,.7)}}
-h1{font-size:26px;font-weight:800;letter-spacing:-.5px;line-height:1}
+@keyframes glow{0%,100%{box-shadow:0 0 18px rgba(56,201,232,.35)}50%{box-shadow:0 0 42px rgba(56,201,232,.65)}}
+h1{font-size:24px;font-weight:800;letter-spacing:-.5px;line-height:1}
 h1 span{color:var(--cyan)}
-.tagline{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);margin-top:5px;letter-spacing:.4px}
+.tagline{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);margin-top:5px}
 .badges{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
-.badge{
-  padding:5px 12px;border-radius:20px;font-size:11px;font-weight:600;
-  letter-spacing:.5px;border:1px solid;font-family:'JetBrains Mono',monospace;
-}
-.bkmp {color:var(--cyan);  border-color:rgba(56,201,232,.4); background:rgba(56,201,232,.07)}
-.bcmp {color:var(--green); border-color:rgba(61,214,140,.4); background:rgba(61,214,140,.07)}
-.bmvvm{color:var(--orange);border-color:rgba(255,171,74,.4);  background:rgba(255,171,74,.07)}
+.badge{padding:5px 12px;border-radius:20px;font-size:11px;font-weight:600;letter-spacing:.5px;border:1px solid;font-family:'JetBrains Mono',monospace}
+.bkmp  {color:var(--cyan);  border-color:rgba(56,201,232,.4);background:rgba(56,201,232,.07)}
+.bcmp  {color:var(--green); border-color:rgba(61,214,140,.4);background:rgba(61,214,140,.07)}
+.bmvvm {color:var(--orange);border-color:rgba(255,171,74,.4);background:rgba(255,171,74,.07)}
 .bbuild{color:var(--purple);border-color:rgba(155,114,245,.4);background:rgba(155,114,245,.07)}
+.bnobase{color:var(--yellow);border-color:rgba(252,211,77,.4);background:rgba(252,211,77,.07)}
 
-/* ── TABS ── */
+/* TABS */
 .tabs{
-  display:flex;gap:0;padding:0 64px;
-  border-bottom:1px solid var(--border);
+  display:flex;padding:0 60px;border-bottom:1px solid var(--border);
   background:rgba(9,25,41,.65);backdrop-filter:blur(10px);
   position:sticky;top:0;z-index:20;overflow-x:auto;
 }
 .tab{
-  padding:15px 24px;background:none;border:none;
+  padding:14px 22px;background:none;border:none;
   font-family:'Syne',sans-serif;font-size:13px;font-weight:600;
   color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;
-  transition:all .18s;letter-spacing:.3px;white-space:nowrap;
+  transition:all .18s;white-space:nowrap;
 }
 .tab:hover{color:var(--white)}
 .tab.on{color:var(--cyan);border-bottom-color:var(--cyan)}
 
-/* ── PANELS ── */
-.panel{display:none;padding:48px 64px;position:relative;z-index:1}
+/* PANELS */
+.panel{display:none;padding:44px 60px;position:relative;z-index:1}
 .panel.on{display:block}
-@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
-.panel.on>*{animation:fadeUp .35s ease both}
+@keyframes up{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.panel.on>*{animation:up .3s ease both}
 .panel.on>*:nth-child(2){animation-delay:.05s}
 .panel.on>*:nth-child(3){animation-delay:.1s}
 .panel.on>*:nth-child(4){animation-delay:.15s}
 
-/* ── SECTION LABELS ── */
-.sec{
-  font-size:11px;font-weight:700;letter-spacing:3px;text-transform:uppercase;
-  color:var(--cyan);margin-bottom:28px;display:flex;align-items:center;gap:12px;
-}
+/* SECTION LABEL */
+.sec{font-size:11px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--cyan);margin-bottom:24px;display:flex;align-items:center;gap:12px}
 .sec::after{content:'';flex:1;height:1px;background:var(--border)}
 
-/* ── CARDS ── */
-.card{
-  background:rgba(14,35,56,.8);border:1px solid var(--border);
-  border-radius:14px;padding:24px;backdrop-filter:blur(6px);
-  transition:transform .2s,border-color .2s,box-shadow .2s;
+/* CALLOUT */
+.callout{
+  background:rgba(252,211,77,.06);border:1px solid rgba(252,211,77,.3);
+  border-radius:12px;padding:16px 20px;margin-bottom:24px;
+  display:flex;align-items:flex-start;gap:12px;font-size:13px;color:var(--white);line-height:1.6;
 }
-.card:hover{transform:translateY(-2px);border-color:rgba(45,125,210,.5);box-shadow:0 10px 36px rgba(0,0,0,.35)}
-.card-cat{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:10px}
-.card-title{font-size:17px;font-weight:700;margin-bottom:7px}
+.callout-icon{font-size:18px;flex-shrink:0;margin-top:1px}
+
+/* CARDS */
+.card{background:rgba(14,35,56,.8);border:1px solid var(--border);border-radius:14px;padding:22px;backdrop-filter:blur(6px);transition:transform .2s,border-color .2s,box-shadow .2s}
+.card:hover{transform:translateY(-2px);border-color:rgba(45,125,210,.5);box-shadow:0 10px 32px rgba(0,0,0,.35)}
+.card-cat{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:8px}
+.card-title{font-size:16px;font-weight:700;margin-bottom:6px}
 .card-body{font-size:13px;color:var(--muted);line-height:1.65}
 
-/* ── GRIDS ── */
-.g2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
-.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
-.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
-.gauto{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px}
+/* GRIDS */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
 
-/* ── PRODUCT GRID ── */
-.prod-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-bottom:36px}
-.prod-col{background:rgba(14,35,56,.7);border:1px solid var(--border);border-radius:14px;overflow:hidden}
-.prod-head{padding:18px 22px;font-size:14px;font-weight:800;display:flex;align-items:center;gap:10px}
-.prod-head .dot{width:9px;height:9px;border-radius:50%}
-.prod-items{padding:6px 22px 18px}
-.prod-item{
-  padding:8px 0;border-bottom:1px solid var(--border);
-  font-size:12px;display:flex;align-items:center;gap:8px;color:var(--muted);
-}
-.prod-item:last-child{border-bottom:none}
-.prod-item::before{content:'→';font-size:10px}
-.call .prod-head{color:var(--cyan); background:rgba(56,201,232,.08)} .call .prod-item::before{color:var(--cyan)}
-.data .prod-head{color:var(--green);background:rgba(61,214,140,.08)} .data .prod-item::before{color:var(--green)}
-.pay  .prod-head{color:var(--orange);background:rgba(255,171,74,.08)} .pay  .prod-item::before{color:var(--orange)}
-
-/* ── CLEAN ARCH LAYERS ── */
-.layers{display:flex;flex-direction:column;gap:5px;max-width:880px;margin:0 auto 44px}
-.layer{
-  border-radius:12px;padding:16px 28px;display:flex;align-items:center;
-  justify-content:space-between;border:1px solid;transition:all .2s;cursor:default;
-}
-.layer:hover{transform:scaleX(1.01)}
-.layer-left{display:flex;align-items:center;gap:14px}
-.layer-icon{font-size:20px}
-.layer-name{font-size:14px;font-weight:700}
-.layer-sub{font-size:11px;color:var(--muted);margin-top:2px;font-family:'JetBrains Mono',monospace}
-.layer-tags{display:flex;gap:7px;flex-wrap:wrap;justify-content:flex-end}
-.tag{padding:3px 9px;border-radius:5px;font-size:10px;font-family:'JetBrains Mono',monospace;font-weight:500}
-.l-ui{background:rgba(56,201,232,.07);border-color:rgba(56,201,232,.3)} .l-ui .layer-name{color:var(--cyan)} .tag-ui{background:rgba(56,201,232,.12);color:var(--cyan)}
-.l-pres{background:rgba(155,114,245,.07);border-color:rgba(155,114,245,.3)} .l-pres .layer-name{color:var(--purple)} .tag-pres{background:rgba(155,114,245,.12);color:var(--purple)}
-.l-domain{background:rgba(61,214,140,.07);border-color:rgba(61,214,140,.3)} .l-domain .layer-name{color:var(--green)} .tag-domain{background:rgba(61,214,140,.12);color:var(--green)}
-.l-data{background:rgba(255,171,74,.07);border-color:rgba(255,171,74,.3)} .l-data .layer-name{color:var(--orange)} .tag-data{background:rgba(255,171,74,.12);color:var(--orange)}
-.arrow-dn{text-align:center;color:var(--border);font-size:16px;margin:-1px 0}
-
-/* ── MVVM FLOW ── */
-.mvvm-flow{display:flex;align-items:center;justify-content:center;gap:0;flex-wrap:nowrap;margin:28px 0 36px;overflow-x:auto;padding:16px}
-.mvvm-node{
-  background:rgba(14,35,56,.9);border-radius:14px;padding:24px 20px;
-  min-width:185px;text-align:center;border:1.5px solid;flex-shrink:0;
-}
-.mvvm-icon{font-size:28px;margin-bottom:10px}
-.mvvm-title{font-size:14px;font-weight:700;margin-bottom:7px}
-.mvvm-items{font-size:11px;color:var(--muted);line-height:1.9;font-family:'JetBrains Mono',monospace}
-.mvvm-arrow{padding:0 14px;display:flex;flex-direction:column;align-items:center;gap:3px;flex-shrink:0}
-.mvvm-arrow span{font-size:18px;color:var(--blue)}
-.mvvm-arrow small{font-size:9px;color:var(--muted);text-align:center;white-space:nowrap;font-family:'JetBrains Mono',monospace}
-
-/* ── CODE BLOCK ── */
+/* CODE */
 .code{
-  background:rgba(5,14,26,.95);border:1px solid rgba(56,201,232,.25);
-  border-radius:12px;padding:24px 28px;font-family:'JetBrains Mono',monospace;
-  font-size:12px;line-height:1.9;overflow-x:auto;margin-bottom:24px;
-}
-.kw {color:#9B72F5} /* keywords */
-.fn {color:#38C9E8} /* function/class names */
-.str{color:#3DD68C} /* strings */
-.cm {color:#3a5a7a;font-style:italic} /* comments */
-.ty {color:#FFAB4A} /* types */
-.nm {color:#F472B6} /* property names */
-
-/* ── MODULE TREE ── */
-.tree{
   background:rgba(5,14,26,.95);border:1px solid rgba(56,201,232,.2);
-  border-radius:14px;padding:28px 32px;font-family:'JetBrains Mono',monospace;
-  font-size:12px;line-height:2;overflow-x:auto;
+  border-radius:12px;padding:22px 26px;font-family:'JetBrains Mono',monospace;
+  font-size:12px;line-height:2;overflow-x:auto;margin-bottom:22px;
 }
+.kw {color:#9B72F5}.fn{color:#38C9E8}.str{color:#3DD68C}
+.cm {color:#2e5070;font-style:italic}.ty{color:#FFAB4A}.nm{color:#F472B6}
+.hi {color:#FCD34D;font-weight:600}   /* highlight */
+
+/* COMPARISON GRID */
+.cmp-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:28px}
+.cmp-label{font-size:11px;font-weight:700;letter-spacing:1px;font-family:'JetBrains Mono',monospace;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+
+/* CLEAN ARCH LAYERS */
+.layers{display:flex;flex-direction:column;gap:5px;max-width:860px;margin:0 auto 40px}
+.layer{border-radius:12px;padding:15px 26px;display:flex;align-items:center;justify-content:space-between;border:1px solid;transition:all .18s;cursor:default}
+.layer:hover{transform:scaleX(1.01)}
+.ll{display:flex;align-items:center;gap:13px}
+.l-icon{font-size:19px}
+.l-name{font-size:14px;font-weight:700}
+.l-sub{font-size:11px;color:var(--muted);margin-top:2px;font-family:'JetBrains Mono',monospace}
+.l-tags{display:flex;gap:7px;flex-wrap:wrap;justify-content:flex-end}
+.tag{padding:2px 9px;border-radius:5px;font-size:10px;font-family:'JetBrains Mono',monospace;font-weight:500}
+.l-ui    {background:rgba(56,201,232,.07);border-color:rgba(56,201,232,.3)}.l-ui .l-name{color:var(--cyan)}.tag-ui{background:rgba(56,201,232,.12);color:var(--cyan)}
+.l-pres  {background:rgba(155,114,245,.07);border-color:rgba(155,114,245,.3)}.l-pres .l-name{color:var(--purple)}.tag-pres{background:rgba(155,114,245,.12);color:var(--purple)}
+.l-domain{background:rgba(61,214,140,.07);border-color:rgba(61,214,140,.3)}.l-domain .l-name{color:var(--green)}.tag-domain{background:rgba(61,214,140,.12);color:var(--green)}
+.l-data  {background:rgba(255,171,74,.07);border-color:rgba(255,171,74,.3)}.l-data .l-name{color:var(--orange)}.tag-data{background:rgba(255,171,74,.12);color:var(--orange)}
+.arrow-dn{text-align:center;color:var(--border);font-size:15px;margin:-1px 0}
+
+/* MVVM FLOW */
+.flow{display:flex;align-items:center;justify-content:center;gap:0;flex-wrap:nowrap;margin:24px 0 32px;overflow-x:auto;padding:12px}
+.fnode{background:rgba(14,35,56,.9);border-radius:14px;padding:22px 18px;min-width:175px;text-align:center;border:1.5px solid;flex-shrink:0}
+.fnode-icon{font-size:26px;margin-bottom:9px}
+.fnode-title{font-size:13px;font-weight:700;margin-bottom:6px}
+.fnode-items{font-size:11px;color:var(--muted);line-height:2;font-family:'JetBrains Mono',monospace}
+.farrow{padding:0 12px;display:flex;flex-direction:column;align-items:center;gap:3px;flex-shrink:0}
+.farrow span{font-size:17px;color:var(--blue)}
+.farrow small{font-size:9px;color:var(--muted);white-space:nowrap;font-family:'JetBrains Mono',monospace}
+
+/* NAV */
+.nav-tree{display:flex;flex-direction:column;align-items:center}
+.nn{background:rgba(14,35,56,.9);border:1.5px solid var(--border);border-radius:9px;padding:8px 15px;font-size:12px;font-weight:600;text-align:center;white-space:nowrap;min-width:85px;transition:all .18s;cursor:default}
+.nn:hover{border-color:var(--blue);transform:scale(1.04);z-index:5;position:relative}
+.nn-root{background:var(--blue);border-color:var(--cyan);color:#fff;font-size:14px;padding:10px 24px}
+.nn-auth{border-color:rgba(255,171,74,.5);color:var(--orange)}
+.nn-main{border-color:rgba(56,201,232,.5);color:var(--cyan);font-size:13px;padding:10px 18px}
+.nn-tab{border-color:rgba(61,214,140,.4);color:var(--green)}
+.nn-sub{border-color:var(--border);color:var(--muted);font-size:11px;padding:7px 11px}
+.vl{width:1px;height:22px;background:var(--border);margin:0 auto}
+.hrow{display:flex;justify-content:center;align-items:flex-start;gap:12px}
+.branch{display:flex;flex-direction:column;align-items:center}
+
+/* TREE */
+.tree{background:rgba(5,14,26,.95);border:1px solid rgba(56,201,232,.2);border-radius:14px;padding:26px 30px;font-family:'JetBrains Mono',monospace;font-size:12px;line-height:2;overflow-x:auto}
 .t-root{color:var(--cyan);font-weight:700;font-size:14px}
 .t-bl{color:var(--purple);font-weight:600}
 .t-app{color:var(--orange)}
@@ -192,65 +167,44 @@ h1 span{color:var(--cyan)}
 .t-vm{color:var(--green);font-weight:600}
 .t-plat{color:var(--pink)}
 .t-cm{color:#2a4a6a;font-style:italic}
-.t-plugin{color:var(--orange)}
+.t-plug{color:var(--orange)}
 
-/* ── CONVENTION PLUGINS TABLE ── */
-.plugin-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-bottom:28px}
-.plugin-card{
-  background:rgba(14,35,56,.8);border:1px solid rgba(155,114,245,.25);
-  border-radius:12px;padding:18px 20px;
-}
-.plugin-name{font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:500;color:var(--purple);margin-bottom:6px}
-.plugin-id{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);background:rgba(155,114,245,.1);padding:2px 8px;border-radius:4px;display:inline-block;margin-bottom:8px}
-.plugin-desc{font-size:12px;color:var(--muted);line-height:1.55}
-.plugin-applies{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--cyan);margin-top:7px}
+/* PLUGIN GRID */
+.pg{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-bottom:24px}
+.pc{background:rgba(14,35,56,.8);border:1px solid rgba(155,114,245,.25);border-radius:12px;padding:17px 19px}
+.pc-name{font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:500;color:var(--purple);margin-bottom:5px}
+.pc-id{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);background:rgba(155,114,245,.1);padding:2px 7px;border-radius:4px;display:inline-block;margin-bottom:8px}
+.pc-desc{font-size:12px;color:var(--muted);line-height:1.55}
+.pc-applies{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--cyan);margin-top:6px}
 
-/* ── NAV TREE ── */
-.nav-tree{display:flex;flex-direction:column;align-items:center}
-.nav-node{
-  background:rgba(14,35,56,.9);border:1.5px solid var(--border);
-  border-radius:9px;padding:9px 16px;font-size:12px;font-weight:600;
-  text-align:center;white-space:nowrap;min-width:90px;
-  transition:all .18s;cursor:default;
-}
-.nav-node:hover{border-color:var(--blue);transform:scale(1.04);z-index:5;position:relative}
-.nn-root{background:var(--blue);border-color:var(--cyan);color:#fff;font-size:14px;padding:11px 26px}
-.nn-auth{border-color:rgba(255,171,74,.5);color:var(--orange)}
-.nn-main{border-color:rgba(56,201,232,.5);color:var(--cyan);font-size:13px;padding:10px 20px}
-.nn-tab{border-color:rgba(61,214,140,.4);color:var(--green)}
-.nn-sub{border-color:var(--border);color:var(--muted);font-size:11px;padding:7px 12px}
-.vline{width:1px;height:24px;background:var(--border);margin:0 auto}
-.hrow{display:flex;justify-content:center;align-items:flex-start;gap:14px}
-.branch{display:flex;flex-direction:column;align-items:center}
+/* TECH GRID */
+.tgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:13px}
+.tc{background:rgba(14,35,56,.7);border:1px solid var(--border);border-radius:11px;padding:17px;transition:all .2s}
+.tc:hover{border-color:rgba(45,125,210,.55);transform:translateY(-2px)}
+.tc-cat{font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:6px}
+.tc-name{font-size:14px;font-weight:700;margin-bottom:4px}
+.tc-purpose{font-size:12px;color:var(--muted);line-height:1.55}
+.tc-ver{font-family:'JetBrains Mono',monospace;font-size:10px;margin-top:6px;opacity:.5}
 
-/* ── TECH GRID ── */
-.tech-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px}
-.tech-card{
-  background:rgba(14,35,56,.7);border:1px solid var(--border);
-  border-radius:11px;padding:18px;transition:all .2s;
-}
-.tech-card:hover{border-color:rgba(45,125,210,.55);transform:translateY(-2px)}
-.tech-cat{font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:7px}
-.tech-name{font-size:15px;font-weight:700;margin-bottom:4px}
-.tech-purpose{font-size:12px;color:var(--muted);line-height:1.55}
-.tech-ver{font-family:'JetBrains Mono',monospace;font-size:10px;margin-top:7px;opacity:.55}
+/* TABLE */
+.tbl{width:100%;border-collapse:collapse;font-size:13px}
+.tbl th{padding:12px 16px;text-align:left;color:var(--cyan);background:rgba(45,125,210,.15);border-bottom:1px solid var(--border)}
+.tbl td{padding:12px 16px;border-bottom:1px solid rgba(56,201,232,.08);vertical-align:top}
+.tbl tr:nth-child(even) td{background:rgba(56,201,232,.02)}
+.tbl tr:hover td{background:rgba(45,125,210,.05)}
+.tbl td:first-child{font-weight:700}
+.mono{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--purple)}
 
-/* ── FOOTER ── */
-footer{
-  position:relative;z-index:1;border-top:1px solid var(--border);
-  padding:28px 64px;display:flex;justify-content:space-between;align-items:center;
-  background:rgba(9,25,41,.6);font-size:11px;color:var(--muted);
-  font-family:'JetBrains Mono',monospace;
-}
+/* FOOTER */
+footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:24px 60px;display:flex;justify-content:space-between;align-items:center;background:rgba(9,25,41,.6);font-size:11px;color:var(--muted);font-family:'JetBrains Mono',monospace}
+
 @media(max-width:900px){
-  header{padding:24px;flex-direction:column;gap:14px;align-items:flex-start}
+  header{padding:22px;flex-direction:column;gap:14px;align-items:flex-start}
   .tabs{padding:0 20px}
-  .panel{padding:28px 20px}
-  .g2,.g3,.g4{grid-template-columns:1fr}
-  .prod-grid{grid-template-columns:1fr}
-  .plugin-grid{grid-template-columns:1fr}
-  footer{flex-direction:column;gap:6px;text-align:center;padding:20px}
-  .mvvm-flow{flex-direction:column}
+  .panel{padding:26px 20px}
+  .g2,.g3,.cmp-grid,.pg{grid-template-columns:1fr}
+  footer{flex-direction:column;gap:6px;text-align:center;padding:18px}
+  .flow{flex-direction:column}
 }
 </style>
 </head>
@@ -261,188 +215,286 @@ footer{
     <div class="logo">E</div>
     <div>
       <h1>ESDIAC <span>Architecture</span></h1>
-      <p class="tagline">// KMP · Compose MP · MVVM · Build-Logic Convention Plugins · v2.0</p>
+      <p class="tagline">// KMP · Compose MP · MVVM · Build-Logic · v2.0</p>
     </div>
   </div>
   <div class="badges">
-    <span class="badge bkmp">KMP 2.x</span>
+    <span class="badge bkmp">KMP 2.1</span>
     <span class="badge bcmp">Compose MP</span>
     <span class="badge bmvvm">MVVM</span>
     <span class="badge bbuild">Build-Logic</span>
+    <span class="badge bnobase">No Base Class</span>
   </div>
 </header>
 
 <nav class="tabs">
   <button class="tab on"  onclick="go('overview',this)">Overview</button>
+  <button class="tab"     onclick="go('mvvm',this)">MVVM Pattern</button>
   <button class="tab"     onclick="go('buildlogic',this)">Build-Logic</button>
   <button class="tab"     onclick="go('modules',this)">Module Structure</button>
   <button class="tab"     onclick="go('layers',this)">Architecture Layers</button>
-  <button class="tab"     onclick="go('mvvm',this)">MVVM Pattern</button>
   <button class="tab"     onclick="go('nav',this)">Navigation</button>
   <button class="tab"     onclick="go('stack',this)">Tech Stack</button>
 </nav>
 
 
-<!-- ════════════════ OVERVIEW ════════════════ -->
+<!-- ══════════════ OVERVIEW ══════════════ -->
 <section id="p-overview" class="panel on">
-  <p class="sec">Product Lines</p>
-  <div class="prod-grid">
-    <div class="prod-col call">
-      <div class="prod-head"><span class="dot" style="background:var(--cyan)"></span>Esdiac Call</div>
-      <div class="prod-items">
-        <div class="prod-item">International VoIP Calling</div>
-        <div class="prod-item">Call History &amp; Contacts</div>
-        <div class="prod-item">Custom Dialpad</div>
-        <div class="prod-item">Mobile Top-Up</div>
-        <div class="prod-item">Business Suite</div>
-        <div class="prod-item">AI Transcription &amp; Summary</div>
-        <div class="prod-item">Smart Call Routing</div>
-        <div class="prod-item">Live Translation</div>
-      </div>
-    </div>
-    <div class="prod-col data">
-      <div class="prod-head"><span class="dot" style="background:var(--green)"></span>Esdiac Data</div>
-      <div class="prod-items">
-        <div class="prod-item">Local eSIM (100+ countries)</div>
-        <div class="prod-item">Regional eSIM</div>
-        <div class="prod-item">Global eSIM</div>
-        <div class="prod-item">Data Top-Up</div>
-        <div class="prod-item">Instant QR Provisioning</div>
-      </div>
-    </div>
-    <div class="prod-col pay">
-      <div class="prod-head"><span class="dot" style="background:var(--orange)"></span>Esdiac Pay</div>
-      <div class="prod-items">
-        <div class="prod-item">eGift Cards</div>
-        <div class="prod-item">Global Marketplace</div>
-        <div class="prod-item">Logistics Platform</div>
-        <div class="prod-item">Cross-border Payments</div>
-        <div class="prod-item">Diaspora Gifting</div>
-      </div>
-    </div>
-  </div>
+ 
 
-  <p class="sec">Architectural Pillars</p>
-  <div class="g2" style="margin-bottom:36px">
-    <div class="card"><div class="card-cat" style="color:var(--cyan)">Clean Architecture</div><div class="card-title">Three inward-pointing layers</div><div class="card-body">UI → Presentation (MVVM) → Domain → Data. The domain layer is pure Kotlin with zero platform imports. Fully unit-testable in commonTest.</div></div>
-    <div class="card"><div class="card-cat" style="color:var(--purple)">Build-Logic Convention Plugins</div><div class="card-title">DRY Gradle configuration</div><div class="card-body">One included build, 7 convention plugins. Each feature module's build.gradle.kts is ~10 lines. All boilerplate in one place.</div></div>
-    <div class="card"><div class="card-cat" style="color:var(--green)">MVVM + StateFlow</div><div class="card-title">Predictable state management</div><div class="card-body">BaseViewModel exposes UiState via StateFlow and one-time UiEvents via SharedFlow. KMP lifecycle-viewmodel survives config changes on both platforms.</div></div>
-    <div class="card"><div class="card-cat" style="color:var(--orange)">Feature-First Modules</div><div class="card-title">Independent, scalable modules</div><div class="card-body">Each product line is an independent Gradle module. Adding a new feature = one new folder + one settings include. Zero changes to existing code.</div></div>
+  <p class="sec">Core Principles</p>
+  <div class="g2" style="margin-bottom:32px">
+    <div class="card"><div class="card-cat" style="color:var(--yellow)">MVVM — No Base Class</div><div class="card-title">Plain ViewModel()</div><div class="card-body">Each ViewModel extends <code style="font-family:'JetBrains Mono',monospace;background:rgba(255,171,74,.1);padding:1px 5px;border-radius:3px;font-size:11px">ViewModel()</code> directly. StateFlow and SharedFlow are declared as private properties. No shared base class, no hidden abstraction, fully readable in isolation.</div></div>
+    <div class="card"><div class="card-cat" style="color:var(--purple)">Build-Logic</div><div class="card-title">Convention Plugins</div><div class="card-body">One included build, 6 plugins. Feature modules have ~10 lines of build config. <code style="font-family:'JetBrains Mono',monospace;background:rgba(155,114,245,.1);padding:1px 5px;border-radius:3px;font-size:11px">esdiac.kmp.feature</code> is the composite plugin — it brings in ViewModel, Koin, Decompose, and core modules automatically.</div></div>
+    <div class="card"><div class="card-cat" style="color:var(--cyan)">Clean Architecture</div><div class="card-title">Three inward layers</div><div class="card-body">UI → Presentation (ViewModel) → Domain → Data. The domain layer is pure Kotlin with zero platform imports, 100% testable in commonTest on both Android and iOS.</div></div>
+    <div class="card"><div class="card-cat" style="color:var(--green)">KMP + Compose MP</div><div class="card-title">Maximum code reuse</div><div class="card-body">Business logic, UI, navigation, and ViewModel state live in commonMain. Only VoIP engine, push handlers, and eSIM provisioning use expect/actual for platform-specific code.</div></div>
   </div>
 
   <p class="sec">Feature Modules</p>
   <div class="g3">
-    <div class="card" style="border-color:rgba(255,171,74,.3)"><div class="card-cat" style="color:var(--orange)">:feature:auth</div><div class="card-title" style="font-size:14px">Authentication</div><div class="card-body">Splash → GetStarted → Login → OTP → Register</div></div>
-    <div class="card" style="border-color:rgba(56,201,232,.3)"><div class="card-cat" style="color:var(--cyan)">:feature:home</div><div class="card-title" style="font-size:14px">Home Dashboard</div><div class="card-body">Transactions · Notifications · Promotions</div></div>
-    <div class="card" style="border-color:rgba(56,201,232,.3)"><div class="card-cat" style="color:var(--cyan)">:feature:call</div><div class="card-title" style="font-size:14px">VoIP Calling</div><div class="card-body">History · Contacts · Dialpad · Active call</div></div>
-    <div class="card" style="border-color:rgba(61,214,140,.3)"><div class="card-cat" style="color:var(--green)">:feature:data-esim</div><div class="card-title" style="font-size:14px">eSIM Data</div><div class="card-body">Local · Regional · Global plans + purchase</div></div>
-    <div class="card" style="border-color:rgba(61,214,140,.3)"><div class="card-cat" style="color:var(--green)">:feature:topup</div><div class="card-title" style="font-size:14px">Top-Up</div><div class="card-body">Mobile + Data top-up: country → carrier → buy</div></div>
-    <div class="card" style="border-color:rgba(255,171,74,.3)"><div class="card-cat" style="color:var(--orange)">:feature:pay</div><div class="card-title" style="font-size:14px">Esdiac Pay</div><div class="card-body">eGift → country → category → brands → buy</div></div>
+    <div class="card" style="border-color:rgba(255,171,74,.3)"><div class="card-cat" style="color:var(--orange)">:feature:auth</div><div class="card-title" style="font-size:14px">Authentication</div><div class="card-body">Splash · GetStarted · Login · OTP · Register<br><span style="font-size:11px;color:var(--green);font-family:'JetBrains Mono',monospace">4 ViewModels — each self-contained</span></div></div>
+    <div class="card" style="border-color:rgba(56,201,232,.3)"><div class="card-cat" style="color:var(--cyan)">:feature:home</div><div class="card-title" style="font-size:14px">Home Dashboard</div><div class="card-body">Transactions · Notifications · Promotions<br><span style="font-size:11px;color:var(--green);font-family:'JetBrains Mono',monospace">HomeViewModel</span></div></div>
+    <div class="card" style="border-color:rgba(56,201,232,.3)"><div class="card-cat" style="color:var(--cyan)">:feature:call</div><div class="card-title" style="font-size:14px">VoIP Calling</div><div class="card-body">History · Contacts · Dialpad · Active Call<br><span style="font-size:11px;color:var(--green);font-family:'JetBrains Mono',monospace">4 ViewModels — each self-contained</span></div></div>
+    <div class="card" style="border-color:rgba(61,214,140,.3)"><div class="card-cat" style="color:var(--green)">:feature:data-esim</div><div class="card-title" style="font-size:14px">eSIM Data</div><div class="card-body">Local · Regional · Global plans + detail + purchase<br><span style="font-size:11px;color:var(--green);font-family:'JetBrains Mono',monospace">EsimListViewModel, EsimDetailViewModel</span></div></div>
+    <div class="card" style="border-color:rgba(61,214,140,.3)"><div class="card-cat" style="color:var(--green)">:feature:topup</div><div class="card-title" style="font-size:14px">Top-Up</div><div class="card-body">Mobile + Data: country → carrier → offer → buy<br><span style="font-size:11px;color:var(--green);font-family:'JetBrains Mono',monospace">3 ViewModels, TopupType enum</span></div></div>
+    <div class="card" style="border-color:rgba(255,171,74,.3)"><div class="card-cat" style="color:var(--orange)">:feature:pay</div><div class="card-title" style="font-size:14px">Esdiac Pay</div><div class="card-body">eGift: country → category → brands → offers → buy<br><span style="font-size:11px;color:var(--green);font-family:'JetBrains Mono',monospace">5 ViewModels in egift flow</span></div></div>
   </div>
 </section>
 
 
-<!-- ════════════════ BUILD-LOGIC ════════════════ -->
+<!-- ══════════════ MVVM ══════════════ -->
+<section id="p-mvvm" class="panel">
+  <div class="callout">
+    <span class="callout-icon">✅</span>
+    <div><strong style="color:var(--yellow)">No BaseViewModel.</strong> Every ViewModel extends <code style="font-family:'JetBrains Mono',monospace;background:rgba(252,211,77,.12);padding:1px 6px;border-radius:3px">ViewModel()</code> directly from <code style="font-family:'JetBrains Mono',monospace;background:rgba(252,211,77,.12);padding:1px 6px;border-radius:3px">org.jetbrains.androidx.lifecycle</code>. State and events are declared as private properties inside each ViewModel — explicit, readable, and trivial to unit-test.</div>
+  </div>
+
+  <p class="sec">Data Flow</p>
+  <div class="flow">
+    <div class="fnode" style="border-color:rgba(56,201,232,.5)">
+      <div class="fnode-icon">🖥️</div>
+      <div class="fnode-title" style="color:var(--cyan)">Composable Screen</div>
+      <div class="fnode-items">collectAsStateWithLifecycle()<br>LaunchedEffect(vm.uiEvent)<br>vm.someAction() calls</div>
+    </div>
+    <div class="farrow"><span>⇄</span><small>StateFlow<br>+ actions</small></div>
+    <div class="fnode" style="border-color:rgba(155,114,245,.5)">
+      <div class="fnode-icon">⚙️</div>
+      <div class="fnode-title" style="color:var(--purple)">ViewModel : ViewModel()</div>
+      <div class="fnode-items"><span style="color:var(--yellow)">private</span> _uiState: StateFlow<br><span style="color:var(--yellow)">private</span> _uiEvent: SharedFlow<br>viewModelScope.launch { }</div>
+    </div>
+    <div class="farrow"><span>→</span><small>suspend<br>invoke()</small></div>
+    <div class="fnode" style="border-color:rgba(61,214,140,.5)">
+      <div class="fnode-icon">💎</div>
+      <div class="fnode-title" style="color:var(--green)">UseCase (Domain)</div>
+      <div class="fnode-items">operator fun invoke()<br>Flow&lt;Resource&lt;T&gt;&gt;<br>Pure Kotlin — no platform</div>
+    </div>
+    <div class="farrow"><span>→</span><small>implements<br>interface</small></div>
+    <div class="fnode" style="border-color:rgba(255,171,74,.5)">
+      <div class="fnode-icon">🗄️</div>
+      <div class="fnode-title" style="color:var(--orange)">Repository (Data)</div>
+      <div class="fnode-items">Ktor API call<br>SQLDelight cache<br>Resource wrapper</div>
+    </div>
+  </div>
+
+  <p class="sec">The Pattern — consistent across all ViewModels</p>
+  <div class="code">
+<span class="cm">// Plain ViewModel — no base class, no shared abstraction</span>
+<span class="kw">class</span> <span class="fn">EsimOfferViewModel</span>(
+    <span class="kw">private val</span> <span class="nm">getOffersUseCase</span>: <span class="ty">GetEsimOffersUseCase</span>,
+) : <span class="ty">ViewModel</span>() {
+
+    <span class="cm">// ── State ─────────────────────────────────────────────────────────</span>
+    <span class="kw">private val</span> <span class="hi">_uiState</span> = <span class="fn">MutableStateFlow</span>(<span class="ty">EsimOfferUiState</span>())
+    <span class="kw">val</span> <span class="nm">uiState</span>: <span class="ty">StateFlow</span>&lt;<span class="ty">EsimOfferUiState</span>&gt; = _uiState.asStateFlow()
+
+    <span class="cm">// ── Events — one-shot, not stored in state ────────────────────────</span>
+    <span class="kw">private val</span> <span class="hi">_uiEvent</span> = <span class="fn">MutableSharedFlow</span>&lt;<span class="ty">EsimOfferUiEvent</span>&gt;(extraBufferCapacity = <span class="ty">1</span>)
+    <span class="kw">val</span> <span class="nm">uiEvent</span>: <span class="ty">SharedFlow</span>&lt;<span class="ty">EsimOfferUiEvent</span>&gt; = _uiEvent.asSharedFlow()
+
+    <span class="cm">// ── Actions ───────────────────────────────────────────────────────</span>
+    <span class="kw">fun</span> <span class="fn">loadOffers</span>(countryCode: <span class="ty">String</span>) {
+        viewModelScope.launch {
+            _uiState.update { it.copy(isLoading = <span class="ty">true</span>, error = <span class="kw">null</span>) }
+            getOffersUseCase(countryCode).collect { resource ->
+                <span class="kw">when</span> (resource) {
+                    <span class="kw">is</span> <span class="ty">Resource.Success</span> -> _uiState.update {
+                        it.copy(isLoading = <span class="ty">false</span>, offers = resource.data)
+                    }
+                    <span class="kw">is</span> <span class="ty">Resource.Error</span> -> {
+                        _uiState.update { it.copy(isLoading = <span class="ty">false</span>, error = resource.message) }
+                        _uiEvent.emit(<span class="ty">EsimOfferUiEvent.ShowNetworkError</span>)
+                    }
+                    <span class="ty">Resource.Loading</span> -> _uiState.update { it.copy(isLoading = <span class="ty">true</span>) }
+                }
+            }
+        }
+    }
+
+    <span class="kw">fun</span> <span class="fn">onOfferSelected</span>(offerId: <span class="ty">String</span>) {
+        viewModelScope.launch { _uiEvent.emit(<span class="ty">EsimOfferUiEvent.NavigateToDetail</span>(offerId)) }
+    }
+}
+  </div>
+
+  <p class="sec">State & Event types</p>
+  <div class="g2" style="margin-bottom:24px">
+    <div>
+      <p style="font-size:11px;color:var(--muted);margin-bottom:10px;font-family:'JetBrains Mono',monospace">UiState — immutable data class</p>
+      <div class="code" style="margin-bottom:0">
+<span class="kw">data class</span> <span class="fn">EsimOfferUiState</span>(
+    <span class="kw">val</span> <span class="nm">isLoading</span>: <span class="ty">Boolean</span>       = <span class="ty">true</span>,
+    <span class="kw">val</span> <span class="nm">offers</span>: <span class="ty">List</span>&lt;<span class="ty">EsimOffer</span>&gt;  = emptyList(),
+    <span class="kw">val</span> <span class="nm">error</span>: <span class="ty">String?</span>          = <span class="kw">null</span>,
+)
+<span class="cm">// No marker interface needed — just a data class</span>
+      </div>
+    </div>
+    <div>
+      <p style="font-size:11px;color:var(--muted);margin-bottom:10px;font-family:'JetBrains Mono',monospace">UiEvent — one-time sealed class</p>
+      <div class="code" style="margin-bottom:0">
+<span class="kw">sealed class</span> <span class="fn">EsimOfferUiEvent</span> {
+    <span class="kw">data class</span> <span class="fn">NavigateToDetail</span>(
+        <span class="kw">val</span> <span class="nm">offerId</span>: <span class="ty">String</span>
+    ) : <span class="fn">EsimOfferUiEvent</span>()
+    <span class="kw">data object</span> <span class="fn">ShowNetworkError</span> : <span class="fn">EsimOfferUiEvent</span>()
+    <span class="kw">data object</span> <span class="fn">PurchaseSuccess</span>  : <span class="fn">EsimOfferUiEvent</span>()
+}
+      </div>
+    </div>
+  </div>
+
+  <p class="sec">Composable Screen</p>
+  <div class="code">
+<span class="kw">@Composable</span>
+<span class="kw">fun</span> <span class="fn">EsimOfferScreen</span>(
+    <span class="nm">viewModel</span>: <span class="ty">EsimOfferViewModel</span> = <span class="fn">koinViewModel</span>(),
+    <span class="nm">onNavigateToDetail</span>: (<span class="ty">String</span>) -> <span class="ty">Unit</span>,
+) {
+    <span class="kw">val</span> <span class="nm">uiState</span> <span class="kw">by</span> viewModel.uiState.<span class="fn">collectAsStateWithLifecycle</span>()
+
+    <span class="fn">LaunchedEffect</span>(viewModel) {
+        viewModel.uiEvent.<span class="fn">collect</span> { event ->
+            <span class="kw">when</span> (event) {
+                <span class="kw">is</span> <span class="ty">EsimOfferUiEvent.NavigateToDetail</span> -> <span class="fn">onNavigateToDetail</span>(event.offerId)
+                <span class="ty">EsimOfferUiEvent.ShowNetworkError</span>    -> { <span class="cm">/* show snackbar */</span> }
+                <span class="ty">EsimOfferUiEvent.PurchaseSuccess</span>     -> { <span class="cm">/* show dialog */</span>  }
+            }
+        }
+    }
+
+    <span class="kw">when</span> {
+        uiState.isLoading        -> <span class="fn">EsdiacLoadingIndicator</span>()
+        uiState.error != <span class="kw">null</span>   -> <span class="fn">EsdiacErrorState</span>(uiState.error, retry = { viewModel.<span class="fn">loadOffers</span>(countryCode) })
+        uiState.offers.isEmpty() -> <span class="fn">EsdiacEmptyState</span>(<span class="str">"No offers available"</span>)
+        <span class="kw">else</span> -> <span class="fn">LazyColumn</span> {
+            items(uiState.offers) { offer ->
+                <span class="fn">EsdiacOfferTile</span>(offer, onClick = { viewModel.<span class="fn">onOfferSelected</span>(offer.id) })
+            }
+        }
+    }
+}
+  </div>
+
+  <p class="sec">Why no base class?</p>
+  <div class="g2">
+    <div class="card" style="border-color:rgba(61,214,140,.3)">
+      <div class="card-cat" style="color:var(--green)">Readability</div>
+      <div class="card-body">Opening any ViewModel shows exactly what state and events it manages. No hunting through a parent class to understand the contract.</div>
+    </div>
+    <div class="card" style="border-color:rgba(61,214,140,.3)">
+      <div class="card-cat" style="color:var(--green)">Testability</div>
+      <div class="card-body">No base class constructor arguments. Instantiate with a fake use case and assert on the StateFlow directly. Tests are 5–10 lines.</div>
+    </div>
+    <div class="card" style="border-color:rgba(61,214,140,.3)">
+      <div class="card-cat" style="color:var(--green)">Flexibility</div>
+      <div class="card-body">Each ViewModel structures its state however makes sense for that screen. No interface to satisfy, no overrides forced by a base class.</div>
+    </div>
+    <div class="card" style="border-color:rgba(61,214,140,.3)">
+      <div class="card-cat" style="color:var(--green)">Idiomatic Kotlin</div>
+      <div class="card-body">StateFlow + update{} and SharedFlow + emit() are already concise. A base class adds indirection without reducing boilerplate.</div>
+    </div>
+  </div>
+
+  <p class="sec" style="margin-top:28px">Unit test — no setup overhead</p>
+  <div class="code">
+<span class="kw">class</span> <span class="fn">EsimOfferViewModelTest</span> {
+
+    <span class="kw">@Test</span>
+    <span class="kw">fun</span> <span class="fn">`loadOffers emits loading then success`</span>() = runTest {
+        <span class="kw">val</span> <span class="nm">vm</span> = <span class="fn">EsimOfferViewModel</span>(<span class="fn">FakeGetEsimOffersUseCase</span>(listOf(plan1, plan2)))
+
+        vm.uiState.test {
+            assertTrue(awaitItem().isLoading)        <span class="cm">// initial state</span>
+            vm.<span class="fn">loadOffers</span>(<span class="str">"US"</span>)
+            <span class="kw">val</span> <span class="nm">loaded</span> = awaitItem()
+            assertFalse(loaded.isLoading)
+            assertEquals(<span class="ty">2</span>, loaded.offers.size)
+            assertNull(loaded.error)
+            cancelAndIgnoreRemainingEvents()
+        }
+    }
+
+    <span class="kw">@Test</span>
+    <span class="kw">fun</span> <span class="fn">`onOfferSelected emits NavigateToDetail event`</span>() = runTest {
+        <span class="kw">val</span> <span class="nm">vm</span> = <span class="fn">EsimOfferViewModel</span>(<span class="fn">FakeGetEsimOffersUseCase</span>(emptyList()))
+        vm.uiEvent.test {
+            vm.<span class="fn">onOfferSelected</span>(<span class="str">"offer-123"</span>)
+            assertEquals(<span class="fn">EsimOfferUiEvent.NavigateToDetail</span>(<span class="str">"offer-123"</span>), awaitItem())
+            cancelAndIgnoreRemainingEvents()
+        }
+    }
+}
+  </div>
+</section>
+
+
+<!-- ══════════════ BUILD-LOGIC ══════════════ -->
 <section id="p-buildlogic" class="panel">
   <p class="sec">Convention Plugins</p>
-  <div class="plugin-grid">
-    <div class="plugin-card">
-      <div class="plugin-name">EsdiacAndroidApplicationPlugin</div>
-      <div class="plugin-id">esdiac.android.application</div>
-      <div class="plugin-desc">Sets compileSdk, minSdk, applicationId, signing configs, ProGuard rules, and Java 17 target for the androidApp module.</div>
-      <div class="plugin-applies">Applies → android.application + kotlin.android</div>
+  <div class="pg">
+    <div class="pc">
+      <div class="pc-name">EsdiacAndroidApplicationPlugin</div>
+      <div class="pc-id">esdiac.android.application</div>
+      <div class="pc-desc">compileSdk, minSdk, applicationId, signing config, ProGuard rules, Java 17.</div>
+      <div class="pc-applies">→ android.application + kotlin.android</div>
     </div>
-    <div class="plugin-card">
-      <div class="plugin-name">EsdiacKmpLibraryPlugin</div>
-      <div class="plugin-id">esdiac.kmp.library</div>
-      <div class="plugin-desc">Configures KMP targets (androidTarget, iosX64, iosArm64, iosSimulatorArm64), jvmTarget = 17, framework baseName, and base coroutine dependencies.</div>
-      <div class="plugin-applies">Applies → kotlin.multiplatform + android.library</div>
+    <div class="pc">
+      <div class="pc-name">EsdiacKmpLibraryPlugin</div>
+      <div class="pc-id">esdiac.kmp.library</div>
+      <div class="pc-desc">KMP targets (androidTarget + iosX64/iosArm64/iosSim), jvmTarget=17, framework baseName, coroutines.</div>
+      <div class="pc-applies">→ kotlin.multiplatform + android.library</div>
     </div>
-    <div class="plugin-card">
-      <div class="plugin-name">EsdiacKmpComposePlugin</div>
-      <div class="plugin-id">esdiac.kmp.compose</div>
-      <div class="plugin-desc">Adds Compose MP and compose.compiler plugins. Injects compose.ui, compose.material3, compose.resources, and uiToolingPreview into commonMain.</div>
-      <div class="plugin-applies">Applies → org.jetbrains.compose + kotlin.plugin.compose</div>
+    <div class="pc">
+      <div class="pc-name">EsdiacKmpComposePlugin</div>
+      <div class="pc-id">esdiac.kmp.compose</div>
+      <div class="pc-desc">Adds Compose MP + compose.compiler. Injects compose.ui, material3, resources, uiToolingPreview.</div>
+      <div class="pc-applies">→ org.jetbrains.compose + kotlin.plugin.compose</div>
     </div>
-    <div class="plugin-card" style="border-color:rgba(61,214,140,.3)">
-      <div class="plugin-name" style="color:var(--green)">EsdiacKmpFeaturePlugin ⭐</div>
-      <div class="plugin-id" style="background:rgba(61,214,140,.1);color:var(--green)">esdiac.kmp.feature</div>
-      <div class="plugin-desc">The key composite plugin. Applied to every feature module. Pulls in MVVM (lifecycle-viewmodel), Decompose navigation, Koin DI, and all core modules automatically.</div>
-      <div class="plugin-applies">Applies → esdiac.kmp.library + esdiac.kmp.compose</div>
+    <div class="pc" style="border-color:rgba(61,214,140,.3)">
+      <div class="pc-name" style="color:var(--green)">EsdiacKmpFeaturePlugin ⭐</div>
+      <div class="pc-id" style="background:rgba(61,214,140,.1);color:var(--green)">esdiac.kmp.feature</div>
+      <div class="pc-desc">Composite plugin for every feature module. Brings KMP + Compose + lifecycle-viewmodel + Decompose + Koin + core modules.</div>
+      <div class="pc-applies">→ esdiac.kmp.library + esdiac.kmp.compose</div>
     </div>
-    <div class="plugin-card">
-      <div class="plugin-name">EsdiacAndroidLibraryPlugin</div>
-      <div class="plugin-id">esdiac.android.library</div>
-      <div class="plugin-desc">Used for pure Android modules that don't need KMP (e.g., Android-only platform integrations). Sets compileSdk, namespace, and ViewBinding.</div>
-      <div class="plugin-applies">Applies → android.library + kotlin.android</div>
+    <div class="pc">
+      <div class="pc-name">EsdiacAndroidLibraryPlugin</div>
+      <div class="pc-id">esdiac.android.library</div>
+      <div class="pc-desc">Pure Android modules (platform-only integrations). Sets compileSdk, namespace, ViewBinding.</div>
+      <div class="pc-applies">→ android.library + kotlin.android</div>
     </div>
-    <div class="plugin-card">
-      <div class="plugin-name">EsdiacDetektPlugin</div>
-      <div class="plugin-id">esdiac.detekt</div>
-      <div class="plugin-desc">Applies Detekt static analysis with a shared detekt.yml baseline. Configures the Detekt task to run on all KMP source sets and hooks into the check task.</div>
-      <div class="plugin-applies">Applies → io.gitlab.arturbosch.detekt</div>
+    <div class="pc">
+      <div class="pc-name">EsdiacDetektPlugin</div>
+      <div class="pc-id">esdiac.detekt</div>
+      <div class="pc-desc">Detekt static analysis on all source sets. Shared detekt.yml baseline. Hooked into check task.</div>
+      <div class="pc-applies">→ io.gitlab.arturbosch.detekt</div>
     </div>
   </div>
 
-  <p class="sec">build-logic Folder Structure</p>
-  <div class="tree">
-<span class="t-root">build-logic/</span>
-  ├── <span class="t-bl">settings.gradle.kts</span>
-  │     <span class="t-cm">// dependencyResolutionManagement { repositories { google(); mavenCentral() } }</span>
-  │     <span class="t-cm">// rootProject.name = "build-logic"</span>
-  ├── <span class="t-bl">build.gradle.kts</span>
-  │     <span class="t-cm">// empty — convention/ is the only subproject</span>
-  └── <span class="t-bl">convention/</span>
-        ├── <span class="t-bl">build.gradle.kts</span>
-        │     <span class="t-cm">// dependencies { compileOnly(libs.agp); compileOnly(libs.kotlin.gradle) }</span>
-        │     <span class="t-cm">// gradlePlugin { plugins { register("esdiac.kmp.feature") { ... } } }</span>
-        └── src/main/kotlin/
-              ├── <span class="t-plugin">EsdiacAndroidApplicationPlugin.kt</span>
-              ├── <span class="t-plugin">EsdiacAndroidLibraryPlugin.kt</span>
-              ├── <span class="t-plugin">EsdiacKmpLibraryPlugin.kt</span>   <span class="t-cm">← KMP targets + Android config</span>
-              ├── <span class="t-plugin">EsdiacKmpComposePlugin.kt</span>    <span class="t-cm">← Compose MP + compiler</span>
-              ├── <span class="t-plugin">EsdiacKmpFeaturePlugin.kt</span>    <span class="t-cm">← Composite: kmp + compose + viewmodel + koin + decompose ⭐</span>
-              ├── <span class="t-plugin">EsdiacAndroidFeaturePlugin.kt</span>
-              └── <span class="t-plugin">EsdiacDetektPlugin.kt</span>
-  </div>
-
-  <p class="sec">Version Catalog — gradle/libs.versions.toml (key entries)</p>
-  <div class="code">
-<span class="cm">[versions]</span>
-<span class="nm">kotlin</span>                 = <span class="str">"2.1.0"</span>
-<span class="nm">compose-multiplatform</span>  = <span class="str">"1.7.0"</span>
-<span class="nm">lifecycle-viewmodel</span>    = <span class="str">"2.9.0"</span>     <span class="cm"># KMP ViewModel — org.jetbrains.androidx.lifecycle</span>
-<span class="nm">decompose</span>              = <span class="str">"3.1.0"</span>
-<span class="nm">koin</span>                   = <span class="str">"4.0.0"</span>
-<span class="nm">ktor</span>                   = <span class="str">"3.0.0"</span>
-<span class="nm">sqldelight</span>             = <span class="str">"2.0.2"</span>
-<span class="nm">coroutines</span>             = <span class="str">"1.9.0"</span>
-<span class="nm">serialization</span>          = <span class="str">"1.7.3"</span>
-<span class="nm">coil</span>                   = <span class="str">"3.0.4"</span>
-<span class="nm">detekt</span>                 = <span class="str">"1.23.7"</span>
-
-<span class="cm">[libraries]</span>
-<span class="nm">lifecycle-viewmodel</span>           = <span class="str">{ module = "org.jetbrains.androidx.lifecycle:lifecycle-viewmodel",        version.ref = "lifecycle-viewmodel" }</span>
-<span class="nm">lifecycle-viewmodel-compose</span>   = <span class="str">{ module = "org.jetbrains.androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "lifecycle-viewmodel" }</span>
-<span class="nm">decompose</span>                     = <span class="str">{ module = "com.arkivanov.decompose:decompose",                           version.ref = "decompose" }</span>
-<span class="nm">decompose-extensions-compose</span>  = <span class="str">{ module = "com.arkivanov.decompose:extensions-compose",                 version.ref = "decompose" }</span>
-<span class="nm">koin-core</span>                     = <span class="str">{ module = "io.insert-koin:koin-core",                                   version.ref = "koin" }</span>
-<span class="nm">koin-compose</span>                  = <span class="str">{ module = "io.insert-koin:koin-compose",                                version.ref = "koin" }</span>
-
-<span class="cm">[plugins]</span>
-<span class="nm">esdiac-kmp-feature</span>     = <span class="str">{ id = "esdiac.kmp.feature" }</span>     <span class="cm"># ← used in every feature module</span>
-<span class="nm">esdiac-kmp-library</span>     = <span class="str">{ id = "esdiac.kmp.library" }</span>
-<span class="nm">esdiac-kmp-compose</span>     = <span class="str">{ id = "esdiac.kmp.compose" }</span>
-<span class="nm">esdiac-android-app</span>     = <span class="str">{ id = "esdiac.android.application" }</span>
-<span class="nm">esdiac-detekt</span>          = <span class="str">{ id = "esdiac.detekt" }</span>
-  </div>
-
-  <p class="sec">A Feature Module build.gradle.kts  — before vs after</p>
-  <div class="g2">
+  <p class="sec">Before vs After</p>
+  <div class="cmp-grid">
     <div>
-      <p style="font-size:12px;color:var(--red);margin-bottom:10px;font-family:'JetBrains Mono',monospace">✗ Without convention plugins (~60 lines)</p>
-      <div class="code" style="border-color:rgba(248,113,113,.25)">
-<span class="cm">// :feature:data-esim/build.gradle.kts</span>
+      <div class="cmp-label"><span style="color:var(--red)">✗</span> Without convention plugins  (~55 lines)</div>
+      <div class="code" style="border-color:rgba(248,113,113,.2)">
 <span class="kw">plugins</span> {
   id(<span class="str">"org.jetbrains.kotlin.multiplatform"</span>)
   id(<span class="str">"com.android.library"</span>)
@@ -453,46 +505,38 @@ footer{
 <span class="kw">kotlin</span> {
   androidTarget { compilations.all {
     kotlinOptions { jvmTarget = <span class="str">"17"</span> } } }
-  listOf(iosX64(), iosArm64(),
-    iosSimulatorArm64()).forEach {
-      it.binaries.framework { baseName = <span class="str">"data-esim"</span> }
-  }
-  sourceSets {
-    commonMain.dependencies {
-      implementation(compose.ui)
-      implementation(compose.material3)
-      implementation(<span class="str">"io.insert-koin:koin-core:4.0.0"</span>)
-      implementation(<span class="str">"io.insert-koin:koin-compose:4.0.0"</span>)
-      implementation(<span class="str">"com.arkivanov.decompose:decompose:3.1.0"</span>)
-      implementation(<span class="str">"org.jetbrains.androidx.lifecycle:lifecycle-viewmodel:2.9.0"</span>)
-      <span class="cm">// ... 10 more lines</span>
-    }
+  listOf(iosX64(), iosArm64(), iosSimulatorArm64())
+    .forEach { it.binaries.framework { ... } }
+  sourceSets.commonMain.dependencies {
+    implementation(compose.ui)
+    implementation(compose.material3)
+    implementation(<span class="str">"io.insert-koin:koin-core:4.0.0"</span>)
+    implementation(<span class="str">"com.arkivanov.decompose:decompose:3.1.0"</span>)
+    implementation(<span class="str">"org.jetbrains.androidx.lifecycle:lifecycle-viewmodel:2.9.0"</span>)
+    <span class="cm">// ... 10 more lines duplicated in EVERY module</span>
   }
 }
 android {
-  compileSdk = <span class="ty">35</span>
-  namespace = <span class="str">"com.esdiac.esim"</span>
+  compileSdk = <span class="ty">35</span>; namespace = <span class="str">"com.esdiac.esim"</span>
   defaultConfig { minSdk = <span class="ty">24</span> }
-  compileOptions { sourceCompatibility = <span class="ty">VERSION_17</span> ... }
+  compileOptions { ... }
 }
       </div>
     </div>
     <div>
-      <p style="font-size:12px;color:var(--green);margin-bottom:10px;font-family:'JetBrains Mono',monospace">✓ With convention plugins (~8 lines)</p>
-      <div class="code" style="border-color:rgba(61,214,140,.3)">
+      <div class="cmp-label"><span style="color:var(--green)">✓</span> With convention plugins  (~10 lines)</div>
+      <div class="code" style="border-color:rgba(61,214,140,.25)">
 <span class="cm">// :feature:data-esim/build.gradle.kts</span>
 <span class="kw">plugins</span> {
-  alias(libs.plugins.<span class="fn">esdiac.kmp.feature</span>)   <span class="cm">// ← does everything</span>
-  alias(libs.plugins.<span class="fn">kotlin.serialization</span>) <span class="cm">// for DTO @Serializable</span>
-  alias(libs.plugins.<span class="fn">esdiac.detekt</span>)        <span class="cm">// static analysis</span>
+  alias(libs.plugins.<span class="fn">esdiac.kmp.feature</span>)    <span class="cm">// ← does everything above</span>
+  alias(libs.plugins.<span class="fn">kotlin.serialization</span>)  <span class="cm">// DTOs</span>
+  alias(libs.plugins.<span class="fn">esdiac.detekt</span>)         <span class="cm">// linting</span>
 }
 <span class="kw">kotlin</span> {
-  sourceSets {
-    commonMain.dependencies {
-      <span class="cm">// only feature-specific additions:</span>
-      implementation(project(<span class="str">":shared:core:core-network"</span>))
-      implementation(project(<span class="str">":shared:core:core-database"</span>))
-    }
+  sourceSets.commonMain.dependencies {
+    <span class="cm">// only feature-specific extras:</span>
+    implementation(project(<span class="str">":shared:core:core-network"</span>))
+    implementation(project(<span class="str">":shared:core:core-database"</span>))
   }
 }
       </div>
@@ -501,373 +545,205 @@ android {
 </section>
 
 
-<!-- ════════════════ MODULES ════════════════ -->
+<!-- ══════════════ MODULES ══════════════ -->
 <section id="p-modules" class="panel">
   <p class="sec">Full Gradle Module Tree</p>
   <div class="tree">
 <span class="t-root">esdiac/</span>
-  ├── <span class="t-bl">build-logic/</span>                  <span class="t-cm">← Included build — convention plugins</span>
-  ├── gradle/libs.versions.toml     <span class="t-cm">← Single version catalog</span>
-  ├── settings.gradle.kts           <span class="t-cm">← includeBuild("build-logic") + all modules</span>
-  ├── <span class="t-app">androidApp/</span>                   <span class="t-cm">← Android entry point</span>
-  │     build.gradle.kts            <span class="t-plugin">plugins { alias(libs.plugins.esdiac.android.app) }</span>
-  │     └── src/main/
-  │           ├── MainActivity.kt   <span class="t-cm">setContent { ComposeApp() }</span>
-  │           └── EsdiacApplication.kt  <span class="t-cm">initKoin { androidContext(...) }</span>
-  ├── <span class="t-app">iosApp/</span>                       <span class="t-cm">← Xcode project</span>
-  │     └── iosApp/ { iOSApp.swift, ContentView.swift }
+  ├── <span class="t-bl">build-logic/</span>                   <span class="t-cm">← included build</span>
+  │     └── convention/src/main/kotlin/
+  │           ├── <span class="t-plug">EsdiacAndroidApplicationPlugin.kt</span>
+  │           ├── <span class="t-plug">EsdiacKmpLibraryPlugin.kt</span>
+  │           ├── <span class="t-plug">EsdiacKmpComposePlugin.kt</span>
+  │           ├── <span class="t-plug">EsdiacKmpFeaturePlugin.kt</span>      <span class="t-cm">← ⭐ composite plugin</span>
+  │           └── <span class="t-plug">EsdiacDetektPlugin.kt</span>
+  ├── gradle/libs.versions.toml          <span class="t-cm">← single version catalog</span>
+  ├── settings.gradle.kts                <span class="t-cm">← includeBuild("build-logic")</span>
+  ├── <span class="t-app">androidApp/</span>                    <span class="t-plug">plugins { esdiac.android.application }</span>
+  │     └── EsdiacApplication.kt, MainActivity.kt
+  ├── <span class="t-app">iosApp/</span>                        <span class="t-cm">← Xcode — KoinKt.doInitKoin()</span>
   └── <span class="t-core">shared/</span>
         ├── <span class="t-core">core/</span>
-        │     ├── <span class="t-core">core-ui/</span>              <span class="t-plugin">→ esdiac.kmp.library + esdiac.kmp.compose</span>
-        │     │     ├── theme/          <span class="t-cm">(EsdiacTheme, LightColors, DarkColors, Typography, Shapes)</span>
-        │     │     ├── components/     <span class="t-cm">(EsdiacButton, EsdiacCard, EsdiacTopBar, EsdiacBottomNav…)</span>
-        │     │     └── icons/
-        │     ├── <span class="t-core">core-network/</span>         <span class="t-plugin">→ esdiac.kmp.library + kotlin.serialization</span>
+        │     ├── <span class="t-core">core-ui</span>           <span class="t-plug">→ esdiac.kmp.library + esdiac.kmp.compose</span>
+        │     │     ├── theme/         <span class="t-cm">EsdiacTheme, LightColors, DarkColors, Typography, Shapes</span>
+        │     │     └── components/    <span class="t-cm">EsdiacButton, EsdiacCard, EsdiacTopBar, etc.</span>
+        │     ├── <span class="t-core">core-network</span>       <span class="t-plug">→ esdiac.kmp.library + kotlin.serialization</span>
         │     │     ├── HttpClientFactory.kt
-        │     │     ├── interceptors/
-        │     │     └── ApiResponse.kt  <span class="t-cm">(sealed: Loading | Success&lt;T&gt; | Error)</span>
-        │     ├── <span class="t-core">core-database/</span>        <span class="t-plugin">→ esdiac.kmp.library + sqldelight</span>
+        │     │     ├── interceptors/  <span class="t-cm">Auth, Logging, Retry</span>
+        │     │     └── ApiResponse.kt <span class="t-cm">sealed: Loading | Success&lt;T&gt; | Error</span>
+        │     ├── <span class="t-core">core-database</span>      <span class="t-plug">→ esdiac.kmp.library + sqldelight</span>
         │     │     ├── EsdiacDatabase.sq
-        │     │     └── DatabaseDriverFactory.kt  <span class="t-cm">(expect/actual)</span>
-        │     ├── <span class="t-core">core-domain/</span>          <span class="t-plugin">→ esdiac.kmp.library</span>
-        │     │     ├── <span class="t-vm">BaseViewModel.kt</span>    <span class="t-cm">(StateFlow UiState + SharedFlow UiEvent)</span>
-        │     │     ├── UseCase.kt
-        │     │     ├── FlowUseCase.kt
-        │     │     ├── Resource.kt     <span class="t-cm">(Loading | Success&lt;T&gt; | Error)</span>
-        │     │     ├── UiState.kt      <span class="t-cm">(marker interface)</span>
-        │     │     └── UiEvent.kt      <span class="t-cm">(marker interface)</span>
-        │     ├── <span class="t-core">core-navigation/</span>      <span class="t-plugin">→ esdiac.kmp.library</span>
+        │     │     └── DatabaseDriverFactory.kt  <span class="t-cm">expect/actual</span>
+        │     ├── <span class="t-core">core-domain</span>        <span class="t-plug">→ esdiac.kmp.library</span>
+        │     │     ├── Resource.kt    <span class="t-cm">sealed: Loading | Success&lt;T&gt; | Error</span>
+        │     │     ├── UseCase.kt     <span class="t-cm">abstract suspend operator fun invoke</span>
+        │     │     └── FlowUseCase.kt <span class="t-cm">returns Flow&lt;Resource&lt;T&gt;&gt;</span>
+        │     │     <span class="t-cm">NO BaseViewModel — ViewModels are self-contained per feature</span>
+        │     ├── <span class="t-core">core-navigation</span>    <span class="t-plug">→ esdiac.kmp.library</span>
         │     │     ├── RootComponent.kt
-        │     │     └── AppNavConfig.kt <span class="t-cm">(sealed: Auth | Main)</span>
-        │     └── <span class="t-core">core-di/</span>              <span class="t-plugin">→ esdiac.kmp.library</span>
-        │           └── AppModule.kt    <span class="t-cm">(initKoin — aggregates all feature modules)</span>
+        │     │     └── AppNavConfig.kt  <span class="t-cm">sealed: Auth | Main</span>
+        │     └── <span class="t-core">core-di</span>            <span class="t-plug">→ esdiac.kmp.library</span>
+        │           └── AppModule.kt    <span class="t-cm">initKoin — aggregates all feature modules</span>
         └── <span class="t-feat">feature/</span>
-              ├── <span class="t-feat">auth/</span>                  <span class="t-plugin">→ esdiac.kmp.feature</span>
-              │     ├── domain/ { User, OtpCode, AuthToken, AuthRepository, LoginUseCase, OtpUseCase, RegisterUseCase }
+              ├── <span class="t-feat">auth</span>               <span class="t-plug">→ esdiac.kmp.feature</span>
+              │     ├── domain/ { User, OtpCode, AuthToken, AuthRepository }
+              │     │           { LoginUseCase, OtpVerifyUseCase, RegisterUseCase }
               │     ├── data/   { AuthApiService, AuthDto, AuthMapper, AuthRepositoryImpl }
               │     └── presentation/
               │           ├── AuthComponent.kt
-              │           ├── splash/     { <span class="t-vm">SplashViewModel</span> + SplashScreen }
-              │           ├── getstarted/ { GetStartedScreen }
-              │           ├── login/      { <span class="t-vm">LoginViewModel</span> + LoginScreen }
-              │           ├── otp/        { <span class="t-vm">OtpViewModel</span> + OtpScreen }
-              │           └── register/   { <span class="t-vm">RegisterViewModel</span> + RegisterScreen }
-              ├── <span class="t-feat">home/</span>                  <span class="t-plugin">→ esdiac.kmp.feature</span>
-              │     ├── domain/ { Transaction, Notification, Promo, GetTransactionsUseCase }
-              │     ├── data/
-              │     └── presentation/
-              │           ├── HomeComponent.kt
-              │           └── home/ { <span class="t-vm">HomeViewModel</span> + HomeScreen }
-              ├── <span class="t-feat">call/</span>                  <span class="t-plugin">→ esdiac.kmp.feature</span>
-              │     ├── domain/ { CallRecord, Contact, VoipEngine(expect/actual), InitCallUseCase }
-              │     ├── data/
+              │           ├── splash/     { SplashUiState · <span class="t-vm">SplashViewModel : ViewModel()</span> · SplashScreen }
+              │           ├── login/      { LoginUiState · LoginUiEvent · <span class="t-vm">LoginViewModel : ViewModel()</span> · LoginScreen }
+              │           ├── otp/        { OtpUiState · OtpUiEvent · <span class="t-vm">OtpViewModel : ViewModel()</span> · OtpScreen }
+              │           └── register/   { RegisterUiState · RegisterUiEvent · <span class="t-vm">RegisterViewModel : ViewModel()</span> · RegisterScreen }
+              ├── <span class="t-feat">home</span>               <span class="t-plug">→ esdiac.kmp.feature</span>
+              │     └── presentation/ { HomeUiState · <span class="t-vm">HomeViewModel : ViewModel()</span> · HomeScreen }
+              ├── <span class="t-feat">call</span>               <span class="t-plug">→ esdiac.kmp.feature</span>
+              │     ├── domain/ { CallRecord, Contact, VoipEngine(expect/actual) }
               │     └── presentation/
               │           ├── CallComponent.kt
-              │           ├── history/    { <span class="t-vm">CallHistoryViewModel</span> + CallHistoryScreen }
-              │           ├── contacts/   { <span class="t-vm">ContactsViewModel</span> + ContactsScreen }
-              │           ├── dialpad/    { <span class="t-vm">DialpadViewModel</span> + DialpadScreen }
-              │           └── activecall/ { <span class="t-vm">ActiveCallViewModel</span> + ActiveCallScreen }
-              ├── <span class="t-feat">data-esim/</span>             <span class="t-plugin">→ esdiac.kmp.feature + kotlin.serialization</span>
-              │     ├── domain/ { EsimPlan, Country, Region, EsimRepository, GetOffersUseCase }
-              │     ├── data/
+              │           ├── history/    { CallHistoryUiState · <span class="t-vm">CallHistoryViewModel : ViewModel()</span> · CallHistoryScreen }
+              │           ├── contacts/   { ContactsUiState · <span class="t-vm">ContactsViewModel : ViewModel()</span> · ContactsScreen }
+              │           ├── dialpad/    { DialpadUiState · DialpadUiEvent · <span class="t-vm">DialpadViewModel : ViewModel()</span> · DialpadScreen }
+              │           └── activecall/ { ActiveCallUiState · ActiveCallUiEvent · <span class="t-vm">ActiveCallViewModel : ViewModel()</span> · Screen }
+              ├── <span class="t-feat">data-esim</span>          <span class="t-plug">→ esdiac.kmp.feature + kotlin.serialization</span>
+              │     ├── domain/ { EsimPlan, Country, Region, EsimRepository }
               │     └── presentation/
-              │           ├── EsimComponent.kt  <span class="t-cm">(tabs: LOCAL | REGIONAL | GLOBAL)</span>
-              │           ├── local/    { <span class="t-vm">EsimLocalViewModel</span> + EsimLocalScreen }
-              │           ├── regional/ { <span class="t-vm">EsimRegionalViewModel</span> + EsimRegionalScreen }
-              │           ├── global/   { <span class="t-vm">EsimGlobalViewModel</span> + EsimGlobalScreen }
-              │           └── detail/   { <span class="t-vm">EsimDetailViewModel</span> + EsimDetailScreen }
-              ├── <span class="t-feat">topup/</span>                 <span class="t-plugin">→ esdiac.kmp.feature</span>
-              │     ├── domain/ { TopupOffer, Carrier, MobileTopupUseCase, DataTopupUseCase }
-              │     ├── data/
-              │     └── presentation/  <span class="t-cm">(TopupType.MOBILE | DATA — shared UI, different endpoints)</span>
+              │           ├── EsimComponent.kt
+              │           ├── local/    { <span class="t-vm">EsimListViewModel(scope=LOCAL) : ViewModel()</span> · EsimLocalScreen }
+              │           ├── regional/ { <span class="t-vm">EsimListViewModel(scope=REGIONAL) : ViewModel()</span> · EsimRegionalScreen }
+              │           ├── global/   { <span class="t-vm">EsimListViewModel(scope=GLOBAL) : ViewModel()</span> · EsimGlobalScreen }
+              │           └── detail/   { EsimDetailUiState · EsimDetailUiEvent · <span class="t-vm">EsimDetailViewModel : ViewModel()</span> · Screen }
+              ├── <span class="t-feat">topup</span>              <span class="t-plug">→ esdiac.kmp.feature</span>
+              │     └── presentation/  <span class="t-cm">TopupType.MOBILE | DATA — same UI, different endpoint</span>
               │           ├── TopupComponent.kt
-              │           ├── country/ { <span class="t-vm">CountryListViewModel</span> + CountryListScreen }
-              │           ├── carrier/ { <span class="t-vm">CarrierListViewModel</span> + CarrierListScreen }
-              │           └── detail/  { <span class="t-vm">TopupDetailViewModel</span> + TopupDetailScreen }
-              ├── <span class="t-feat">pay/</span>                   <span class="t-plugin">→ esdiac.kmp.feature</span>
-              │     ├── domain/ { GiftCard, Brand, Category, GiftCardUseCase }
-              │     ├── data/
-              │     └── presentation/
-              │           ├── PayComponent.kt
-              │           └── egift/
-              │                 ├── country/  { <span class="t-vm">EgiftCountryViewModel</span> + Screen }
-              │                 ├── category/ { <span class="t-vm">EgiftCategoryViewModel</span> + Screen }
-              │                 ├── brands/   { <span class="t-vm">EgiftBrandsViewModel</span> + Screen }
-              │                 ├── offers/   { <span class="t-vm">EgiftOffersViewModel</span> + Screen }
-              │                 └── detail/   { <span class="t-vm">EgiftDetailViewModel</span> + Screen }
-              └── <span class="t-feat">profile/</span>               <span class="t-plugin">→ esdiac.kmp.feature</span>
-                    └── presentation/ { <span class="t-vm">ProfileViewModel</span> + ProfileScreen }
+              │           ├── country/ { CountryListUiState · <span class="t-vm">CountryListViewModel : ViewModel()</span> · Screen }
+              │           ├── carrier/ { CarrierListUiState · <span class="t-vm">CarrierListViewModel : ViewModel()</span> · Screen }
+              │           └── detail/  { TopupDetailUiState · TopupDetailUiEvent · <span class="t-vm">TopupDetailViewModel : ViewModel()</span> · Screen }
+              ├── <span class="t-feat">pay</span>                <span class="t-plug">→ esdiac.kmp.feature</span>
+              │     └── presentation/egift/
+              │           ├── country/  { <span class="t-vm">EgiftCountryViewModel : ViewModel()</span> · Screen }
+              │           ├── category/ { <span class="t-vm">EgiftCategoryViewModel : ViewModel()</span> · Screen }
+              │           ├── brands/   { <span class="t-vm">EgiftBrandsViewModel : ViewModel()</span> · Screen }
+              │           ├── offers/   { <span class="t-vm">EgiftOffersViewModel : ViewModel()</span> · Screen }
+              │           └── detail/   { EgiftDetailUiState · EgiftDetailUiEvent · <span class="t-vm">EgiftDetailViewModel : ViewModel()</span> · Screen }
+              └── <span class="t-feat">profile</span>            <span class="t-plug">→ esdiac.kmp.feature</span>
+                    └── presentation/ { ProfileUiState · ProfileUiEvent · <span class="t-vm">ProfileViewModel : ViewModel()</span> · Screen }
 
-  <span class="t-plat">// expect/actual in shared/androidMain + iosMain:</span>
-  <span class="t-plat">// VoipEngineActual.kt  DatabaseDriverActual.kt  PushHandlerActual.kt  ContactsProviderActual.kt</span>
+  <span class="t-plat">// expect/actual — shared/androidMain + iosMain</span>
+  <span class="t-plat">// VoipEngineActual · DatabaseDriverActual · PushHandlerActual · ContactsProviderActual</span>
   </div>
 </section>
 
 
-<!-- ════════════════ LAYERS ════════════════ -->
+<!-- ══════════════ LAYERS ══════════════ -->
 <section id="p-layers" class="panel">
-  <p class="sec">Clean Architecture Stack — per feature module</p>
+  <p class="sec">Clean Architecture — per feature</p>
   <div class="layers">
-    <div class="layer l-ui">
-      <div class="layer-left"><span class="layer-icon">🖼️</span><div><div class="layer-name">UI Layer — Compose Multiplatform</div><div class="layer-sub">@Composable screens · collectAsStateWithLifecycle() · LaunchedEffect(events)</div></div></div>
-      <div class="layer-tags"><span class="tag tag-ui">Compose MP</span><span class="tag tag-ui">Material 3</span><span class="tag tag-ui">Coil 3</span><span class="tag tag-ui">EsdiacTheme</span></div>
-    </div>
-    <div class="arrow-dn">↓ collectAsStateWithLifecycle · viewModel.action()</div>
-    <div class="layer l-pres">
-      <div class="layer-left"><span class="layer-icon">⚙️</span><div><div class="layer-name">Presentation Layer — MVVM ViewModel</div><div class="layer-sub">UiState: StateFlow · UiEvent: SharedFlow · viewModelScope coroutines</div></div></div>
-      <div class="layer-tags"><span class="tag tag-pres">lifecycle-viewmodel KMP</span><span class="tag tag-pres">Decompose</span><span class="tag tag-pres">Koin viewModel()</span></div>
-    </div>
-    <div class="arrow-dn">↓ calls UseCase.invoke()</div>
-    <div class="layer l-domain">
-      <div class="layer-left"><span class="layer-icon">💎</span><div><div class="layer-name">Domain Layer — Pure Kotlin</div><div class="layer-sub">Entities · Repository interfaces · Use cases — zero platform imports</div></div></div>
-      <div class="layer-tags"><span class="tag tag-domain">Pure Kotlin</span><span class="tag tag-domain">commonMain only</span><span class="tag tag-domain">Unit testable</span></div>
-    </div>
-    <div class="arrow-dn">↓ implements Repository interface</div>
-    <div class="layer l-data">
-      <div class="layer-left"><span class="layer-icon">🗄️</span><div><div class="layer-name">Data Layer — Repository Implementations</div><div class="layer-sub">Ktor remote · SQLDelight local · DTO↔Domain mappers · cache strategy</div></div></div>
-      <div class="layer-tags"><span class="tag tag-data">Ktor 3</span><span class="tag tag-data">SQLDelight 2</span><span class="tag tag-data">Mappers</span><span class="tag tag-data">Cache-first</span></div>
-    </div>
+    <div class="layer l-ui"><div class="ll"><span class="l-icon">🖥️</span><div><div class="l-name">UI Layer — Compose Multiplatform</div><div class="l-sub">@Composable screens · collectAsStateWithLifecycle() · LaunchedEffect(events)</div></div></div><div class="l-tags"><span class="tag tag-ui">Compose MP</span><span class="tag tag-ui">Material 3</span><span class="tag tag-ui">EsdiacTheme</span><span class="tag tag-ui">Coil 3</span></div></div>
+    <div class="arrow-dn">↓  collectAsStateWithLifecycle · vm.action()</div>
+    <div class="layer l-pres"><div class="ll"><span class="l-icon">⚙️</span><div><div class="l-name">Presentation — ViewModel : ViewModel()  (no base class)</div><div class="l-sub">private _uiState: StateFlow · private _uiEvent: SharedFlow · viewModelScope</div></div></div><div class="l-tags"><span class="tag tag-pres">lifecycle-viewmodel KMP</span><span class="tag tag-pres">Decompose retained</span><span class="tag tag-pres">Koin viewModel()</span></div></div>
+    <div class="arrow-dn">↓  useCase.invoke()</div>
+    <div class="layer l-domain"><div class="ll"><span class="l-icon">💎</span><div><div class="l-name">Domain Layer — Pure Kotlin</div><div class="l-sub">Entities · Repository interfaces · Use Cases — zero platform imports</div></div></div><div class="l-tags"><span class="tag tag-domain">Pure Kotlin</span><span class="tag tag-domain">commonMain only</span><span class="tag tag-domain">100% unit testable</span></div></div>
+    <div class="arrow-dn">↓  implements interface</div>
+    <div class="layer l-data"><div class="ll"><span class="l-icon">🗄️</span><div><div class="l-name">Data Layer — Repository Implementations</div><div class="l-sub">Ktor remote · SQLDelight local · DTO↔Domain mappers · cache-first strategy</div></div></div><div class="l-tags"><span class="tag tag-data">Ktor 3</span><span class="tag tag-data">SQLDelight 2</span><span class="tag tag-data">Mappers</span><span class="tag tag-data">Cache-first</span></div></div>
   </div>
 
-  <p class="sec">Feature Architecture Summary</p>
+  <p class="sec">Feature Summary</p>
   <div style="overflow-x:auto">
-  <table style="width:100%;border-collapse:collapse;font-size:13px">
-    <thead><tr style="background:rgba(45,125,210,.2)">
-      <th style="padding:12px 16px;text-align:left;color:var(--cyan);border-bottom:1px solid var(--border)">Module</th>
-      <th style="padding:12px 16px;text-align:left;color:var(--cyan);border-bottom:1px solid var(--border)">Convention Plugin</th>
-      <th style="padding:12px 16px;text-align:left;color:var(--cyan);border-bottom:1px solid var(--border)">ViewModels</th>
-      <th style="padding:12px 16px;text-align:left;color:var(--cyan);border-bottom:1px solid var(--border)">Key Use Cases</th>
-    </tr></thead>
+  <table class="tbl">
+    <thead><tr><th>Module</th><th>Plugin</th><th>ViewModels (all : ViewModel())</th><th>Domain</th></tr></thead>
     <tbody>
-      <tr style="border-bottom:1px solid rgba(56,201,232,.08)"><td style="padding:12px 16px;font-weight:700">:feature:auth</td><td style="padding:12px 16px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--purple)">esdiac.kmp.feature</td><td style="padding:12px 16px;color:var(--muted)">Splash, Login, Otp, Register</td><td style="padding:12px 16px;color:var(--muted)">LoginUseCase, OtpVerifyUseCase, RegisterUseCase</td></tr>
-      <tr style="border-bottom:1px solid rgba(56,201,232,.08);background:rgba(56,201,232,.02)"><td style="padding:12px 16px;font-weight:700">:feature:home</td><td style="padding:12px 16px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--purple)">esdiac.kmp.feature</td><td style="padding:12px 16px;color:var(--muted)">HomeViewModel</td><td style="padding:12px 16px;color:var(--muted)">GetTransactionsUseCase, GetNotificationsUseCase</td></tr>
-      <tr style="border-bottom:1px solid rgba(56,201,232,.08)"><td style="padding:12px 16px;font-weight:700">:feature:call</td><td style="padding:12px 16px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--purple)">esdiac.kmp.feature</td><td style="padding:12px 16px;color:var(--muted)">CallHistory, Contacts, Dialpad, ActiveCall</td><td style="padding:12px 16px;color:var(--muted)">InitCallUseCase, GetHistoryUseCase, VoipEngine(expect)</td></tr>
-      <tr style="border-bottom:1px solid rgba(56,201,232,.08);background:rgba(56,201,232,.02)"><td style="padding:12px 16px;font-weight:700">:feature:data-esim</td><td style="padding:12px 16px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--purple)">esdiac.kmp.feature + serialization</td><td style="padding:12px 16px;color:var(--muted)">EsimLocal, EsimRegional, EsimGlobal, EsimDetail</td><td style="padding:12px 16px;color:var(--muted)">GetCountriesUseCase, GetEsimOffersUseCase, PurchaseEsimUseCase</td></tr>
-      <tr style="border-bottom:1px solid rgba(56,201,232,.08)"><td style="padding:12px 16px;font-weight:700">:feature:topup</td><td style="padding:12px 16px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--purple)">esdiac.kmp.feature</td><td style="padding:12px 16px;color:var(--muted)">CountryList, CarrierList, TopupDetail</td><td style="padding:12px 16px;color:var(--muted)">MobileTopupUseCase, DataTopupUseCase</td></tr>
-      <tr style="background:rgba(56,201,232,.02)"><td style="padding:12px 16px;font-weight:700">:feature:pay</td><td style="padding:12px 16px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--purple)">esdiac.kmp.feature</td><td style="padding:12px 16px;color:var(--muted)">EgiftCountry, Category, Brands, Offers, Detail</td><td style="padding:12px 16px;color:var(--muted)">GetBrandsUseCase, GetGiftCardsUseCase, PurchaseGiftCardUseCase</td></tr>
+      <tr><td>:feature:auth</td><td class="mono">esdiac.kmp.feature</td><td style="color:var(--muted)">Splash, Login, Otp, Register</td><td style="color:var(--muted)">LoginUseCase, OtpVerifyUseCase, RegisterUseCase</td></tr>
+      <tr><td>:feature:home</td><td class="mono">esdiac.kmp.feature</td><td style="color:var(--muted)">HomeViewModel</td><td style="color:var(--muted)">GetTransactionsUseCase, GetNotificationsUseCase</td></tr>
+      <tr><td>:feature:call</td><td class="mono">esdiac.kmp.feature</td><td style="color:var(--muted)">CallHistory, Contacts, Dialpad, ActiveCall</td><td style="color:var(--muted)">InitCallUseCase, GetHistoryUseCase, VoipEngine(expect)</td></tr>
+      <tr><td>:feature:data-esim</td><td class="mono">esdiac.kmp.feature + serialization</td><td style="color:var(--muted)">EsimList(×3 scopes), EsimDetail</td><td style="color:var(--muted)">GetCountriesUseCase, GetEsimOffersUseCase, PurchaseEsimUseCase</td></tr>
+      <tr><td>:feature:topup</td><td class="mono">esdiac.kmp.feature</td><td style="color:var(--muted)">CountryList, CarrierList, TopupDetail</td><td style="color:var(--muted)">MobileTopupUseCase, DataTopupUseCase</td></tr>
+      <tr><td>:feature:pay</td><td class="mono">esdiac.kmp.feature</td><td style="color:var(--muted)">EgiftCountry, Category, Brands, Offers, Detail</td><td style="color:var(--muted)">GetBrandsUseCase, GetGiftCardsUseCase, PurchaseGiftCardUseCase</td></tr>
+      <tr><td>:feature:profile</td><td class="mono">esdiac.kmp.feature</td><td style="color:var(--muted)">ProfileViewModel</td><td style="color:var(--muted)">UpdateProfileUseCase, SetThemeModeUseCase</td></tr>
     </tbody>
   </table>
   </div>
 </section>
 
 
-<!-- ════════════════ MVVM ════════════════ -->
-<section id="p-mvvm" class="panel">
-  <p class="sec">Model — View — ViewModel</p>
-
-  <div class="mvvm-flow">
-    <div class="mvvm-node" style="border-color:rgba(56,201,232,.5)">
-      <div class="mvvm-icon">🖥️</div>
-      <div class="mvvm-title" style="color:var(--cyan)">View (Composable)</div>
-      <div class="mvvm-items">@Composable fun Screen()<br>collectAsStateWithLifecycle<br>LaunchedEffect(vm.uiEvent)<br>vm.onAction() calls</div>
-    </div>
-    <div class="mvvm-arrow"><span>⇄</span><small>StateFlow<br>+ actions</small></div>
-    <div class="mvvm-node" style="border-color:rgba(155,114,245,.5)">
-      <div class="mvvm-icon">⚙️</div>
-      <div class="mvvm-title" style="color:var(--purple)">ViewModel</div>
-      <div class="mvvm-items">BaseViewModel&lt;S,E&gt;<br>_uiState: StateFlow&lt;S&gt;<br>_uiEvent: SharedFlow&lt;E&gt;<br>viewModelScope</div>
-    </div>
-    <div class="mvvm-arrow"><span>→</span><small>suspend<br>invoke()</small></div>
-    <div class="mvvm-node" style="border-color:rgba(61,214,140,.5)">
-      <div class="mvvm-icon">💎</div>
-      <div class="mvvm-title" style="color:var(--green)">UseCase (Domain)</div>
-      <div class="mvvm-items">operator fun invoke()<br>Flow&lt;Resource&lt;T&gt;&gt;<br>Pure Kotlin<br>No platform imports</div>
-    </div>
-    <div class="mvvm-arrow"><span>→</span><small>implements<br>interface</small></div>
-    <div class="mvvm-node" style="border-color:rgba(255,171,74,.5)">
-      <div class="mvvm-icon">🗄️</div>
-      <div class="mvvm-title" style="color:var(--orange)">Repository (Data)</div>
-      <div class="mvvm-items">Ktor API call<br>SQLDelight cache<br>DTO→Domain map<br>Resource wrapper</div>
-    </div>
-  </div>
-
-  <p class="sec">BaseViewModel — shared in core-domain</p>
-  <div class="code">
-<span class="cm">// :core:core-domain/BaseViewModel.kt  — lives in commonMain, 100% shared</span>
-<span class="kw">abstract class</span> <span class="fn">BaseViewModel</span>&lt;<span class="ty">S</span> : <span class="ty">UiState</span>, <span class="ty">E</span> : <span class="ty">UiEvent</span>&gt;() : <span class="ty">ViewModel</span>() {
-
-    <span class="kw">private val</span> <span class="nm">_uiState</span> = <span class="fn">MutableStateFlow</span>(<span class="fn">initialState</span>())
-    <span class="kw">val</span> <span class="nm">uiState</span>: <span class="ty">StateFlow</span>&lt;<span class="ty">S</span>&gt; = _uiState.asStateFlow()
-
-    <span class="kw">private val</span> <span class="nm">_uiEvent</span> = <span class="fn">MutableSharedFlow</span>&lt;<span class="ty">E</span>&gt;(extraBufferCapacity = <span class="ty">1</span>)
-    <span class="kw">val</span> <span class="nm">uiEvent</span>: <span class="ty">SharedFlow</span>&lt;<span class="ty">E</span>&gt; = _uiEvent.asSharedFlow()
-
-    <span class="kw">abstract fun</span> <span class="fn">initialState</span>(): <span class="ty">S</span>
-
-    <span class="kw">protected fun</span> <span class="fn">updateState</span>(reducer: <span class="ty">S</span>.() -> <span class="ty">S</span>) { _uiState.update { it.reducer() } }
-    <span class="kw">protected fun</span> <span class="fn">emitEvent</span>(event: <span class="ty">E</span>) { viewModelScope.launch { _uiEvent.emit(event) } }
-}
-  </div>
-
-  <p class="sec">Concrete Example — eSIM Offer List</p>
-  <div class="g3">
-    <div class="card" style="border-color:rgba(56,201,232,.3)">
-      <div class="card-cat" style="color:var(--cyan)">UiState</div>
-      <div class="code" style="margin-bottom:0;padding:14px 16px;font-size:11px">
-<span class="kw">data class</span> <span class="fn">EsimOfferUiState</span>(
-  <span class="kw">val</span> <span class="nm">isLoading</span>: <span class="ty">Boolean</span> = <span class="ty">true</span>,
-  <span class="kw">val</span> <span class="nm">offers</span>: <span class="ty">List</span>&lt;<span class="ty">EsimOffer</span>&gt; = emptyList(),
-  <span class="kw">val</span> <span class="nm">selectedCountry</span>: <span class="ty">String</span> = <span class="str">""</span>,
-  <span class="kw">val</span> <span class="nm">error</span>: <span class="ty">String?</span> = <span class="kw">null</span>,
-) : <span class="ty">UiState</span></div>
-    </div>
-    <div class="card" style="border-color:rgba(155,114,245,.3)">
-      <div class="card-cat" style="color:var(--purple)">UiEvent (one-time)</div>
-      <div class="code" style="margin-bottom:0;padding:14px 16px;font-size:11px">
-<span class="kw">sealed class</span> <span class="fn">EsimOfferUiEvent</span> : <span class="ty">UiEvent</span> {
-  <span class="kw">data class</span> <span class="fn">NavigateToDetail</span>(
-    <span class="kw">val</span> <span class="nm">offerId</span>: <span class="ty">String</span>
-  ) : <span class="fn">EsimOfferUiEvent</span>()
-  <span class="kw">data object</span> <span class="fn">ShowNetworkError</span>
-    : <span class="fn">EsimOfferUiEvent</span>()
-  <span class="kw">data object</span> <span class="fn">PurchaseSuccess</span>
-    : <span class="fn">EsimOfferUiEvent</span>()
-}</div>
-    </div>
-    <div class="card" style="border-color:rgba(61,214,140,.3)">
-      <div class="card-cat" style="color:var(--green)">ViewModel</div>
-      <div class="code" style="margin-bottom:0;padding:14px 16px;font-size:11px">
-<span class="kw">class</span> <span class="fn">EsimOfferViewModel</span>(
-  <span class="kw">private val</span> <span class="nm">getOffers</span>: <span class="ty">GetEsimOffersUseCase</span>
-) : <span class="fn">BaseViewModel</span>&lt;<span class="ty">EsimOfferUiState</span>,
-        <span class="ty">EsimOfferUiEvent</span>&gt;() {
-
-  <span class="kw">override fun</span> <span class="fn">initialState</span>() =
-    <span class="fn">EsimOfferUiState</span>()
-
-  <span class="kw">fun</span> <span class="fn">loadOffers</span>(country: <span class="ty">String</span>) {
-    viewModelScope.launch {
-      <span class="fn">getOffers</span>(country).collect {
-        <span class="kw">when</span> (it) { ... }
-      }
-    }
-  }
-}</div>
-    </div>
-  </div>
-
-  <p class="sec" style="margin-top:28px">Composable Screen — state collection</p>
-  <div class="code">
-<span class="kw">@Composable</span>
-<span class="kw">fun</span> <span class="fn">EsimOfferScreen</span>(
-    <span class="nm">viewModel</span>: <span class="ty">EsimOfferViewModel</span> = <span class="fn">koinViewModel</span>(),  <span class="cm">// injected by Koin</span>
-    <span class="nm">onNavigateToDetail</span>: (<span class="ty">String</span>) -> <span class="ty">Unit</span>,
-) {
-    <span class="kw">val</span> <span class="nm">uiState</span> <span class="kw">by</span> viewModel.uiState.<span class="fn">collectAsStateWithLifecycle</span>()
-
-    <span class="cm">// Collect one-time events without blocking the UI</span>
-    <span class="fn">LaunchedEffect</span>(viewModel) {
-        viewModel.uiEvent.<span class="fn">collect</span> { event ->
-            <span class="kw">when</span> (event) {
-                <span class="kw">is</span> <span class="ty">EsimOfferUiEvent.NavigateToDetail</span> -> <span class="fn">onNavigateToDetail</span>(event.offerId)
-                <span class="ty">EsimOfferUiEvent.ShowNetworkError</span>    -> { <span class="cm">/* show snackbar */</span> }
-                <span class="ty">EsimOfferUiEvent.PurchaseSuccess</span>     -> { <span class="cm">/* show success dialog */</span> }
-            }
-        }
-    }
-
-    <span class="kw">if</span> (uiState.isLoading) { <span class="fn">EsdiacLoadingIndicator</span>() }
-    <span class="kw">else</span> { <span class="fn">LazyColumn</span> { items(uiState.offers) { <span class="fn">EsdiacOfferTile</span>(it, viewModel::<span class="fn">onOfferSelected</span>) } } }
-}
-  </div>
-</section>
-
-
-<!-- ════════════════ NAVIGATION ════════════════ -->
+<!-- ══════════════ NAV ══════════════ -->
 <section id="p-nav" class="panel">
   <p class="sec">Decompose Navigation Tree</p>
   <div class="nav-tree">
-    <div class="nav-node nn-root">RootComponent</div>
-    <div class="vline"></div>
+    <div class="nn nn-root">RootComponent</div><div class="vl"></div>
     <div class="hrow">
       <div class="branch">
-        <div class="nav-node nn-auth">AuthComponent</div>
-        <div class="vline"></div>
-        <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center">
-          <div class="nav-node nn-sub">Splash</div>
-          <div class="nav-node nn-sub">GetStarted</div>
-          <div class="nav-node nn-sub">Login</div>
-          <div class="nav-node nn-sub">OTP</div>
-          <div class="nav-node nn-sub">Register</div>
+        <div class="nn nn-auth">AuthComponent</div><div class="vl"></div>
+        <div style="display:flex;gap:7px;flex-wrap:wrap;justify-content:center">
+          <div class="nn nn-sub">Splash</div><div class="nn nn-sub">GetStarted</div><div class="nn nn-sub">Login</div><div class="nn nn-sub">OTP</div><div class="nn nn-sub">Register</div>
         </div>
       </div>
-      <div style="padding-top:20px;color:var(--border);font-size:22px;padding-inline:8px">·</div>
+      <div style="padding-top:18px;color:var(--border);font-size:22px;padding-inline:8px">·</div>
       <div class="branch">
-        <div class="nav-node nn-main">MainComponent (BottomNav)</div>
-        <div class="vline"></div>
+        <div class="nn nn-main">MainComponent (BottomNav)</div><div class="vl"></div>
         <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center;align-items:flex-start">
-          <div class="branch"><div class="nav-node nn-tab" style="color:var(--muted)">Home</div><div class="vline"></div><div class="nav-node nn-sub">HomeScreen</div></div>
+          <div class="branch"><div class="nn nn-tab" style="color:var(--muted)">Home</div><div class="vl"></div><div class="nn nn-sub">HomeScreen</div></div>
           <div class="branch">
-            <div class="nav-node nn-tab" style="color:var(--cyan)">Call</div>
-            <div class="vline"></div>
+            <div class="nn nn-tab" style="color:var(--cyan)">Call</div><div class="vl"></div>
             <div style="display:flex;gap:6px">
-              <div class="nav-node nn-sub">History</div>
-              <div class="nav-node nn-sub">Contacts</div>
-              <div class="nav-node nn-sub" style="color:var(--cyan);border-color:rgba(56,201,232,.5)">Dialpad↗</div>
-              <div class="nav-node nn-sub" style="color:var(--pink);border-color:rgba(244,114,182,.5)">ActiveCall</div>
+              <div class="nn nn-sub">History</div><div class="nn nn-sub">Contacts</div>
+              <div class="nn nn-sub" style="color:var(--cyan);border-color:rgba(56,201,232,.5)">Dialpad ↗</div>
+              <div class="nn nn-sub" style="color:var(--pink);border-color:rgba(244,114,182,.5)">ActiveCall</div>
             </div>
           </div>
           <div class="branch">
-            <div class="nav-node nn-tab" style="color:var(--green)">Data eSIM</div>
-            <div class="vline"></div>
+            <div class="nn nn-tab" style="color:var(--green)">Data eSIM</div><div class="vl"></div>
             <div style="display:flex;gap:8px;align-items:flex-start">
-              <div class="branch"><div class="nav-node nn-sub">Local</div><div class="vline"></div><div class="nav-node nn-sub">Countries</div><div class="vline"></div><div class="nav-node nn-sub">Offers</div><div class="vline"></div><div class="nav-node nn-sub" style="color:var(--green);border-color:rgba(61,214,140,.4)">Detail+Buy</div></div>
-              <div class="branch"><div class="nav-node nn-sub">Regional</div><div class="vline"></div><div class="nav-node nn-sub">Regions</div><div class="vline"></div><div class="nav-node nn-sub">Offers</div><div class="vline"></div><div class="nav-node nn-sub" style="color:var(--green);border-color:rgba(61,214,140,.4)">Detail+Buy</div></div>
-              <div class="branch"><div class="nav-node nn-sub">Global</div><div class="vline"></div><div class="nav-node nn-sub" style="color:var(--green);border-color:rgba(61,214,140,.4)">Detail+Buy</div></div>
+              <div class="branch"><div class="nn nn-sub">Local</div><div class="vl"></div><div class="nn nn-sub">Countries</div><div class="vl"></div><div class="nn nn-sub">Offers</div><div class="vl"></div><div class="nn nn-sub" style="color:var(--green);border-color:rgba(61,214,140,.4)">Detail+Buy</div></div>
+              <div class="branch"><div class="nn nn-sub">Regional</div><div class="vl"></div><div class="nn nn-sub">Regions</div><div class="vl"></div><div class="nn nn-sub">Offers</div><div class="vl"></div><div class="nn nn-sub" style="color:var(--green);border-color:rgba(61,214,140,.4)">Detail+Buy</div></div>
+              <div class="branch"><div class="nn nn-sub">Global</div><div class="vl"></div><div class="nn nn-sub" style="color:var(--green);border-color:rgba(61,214,140,.4)">Detail+Buy</div></div>
             </div>
           </div>
           <div class="branch">
-            <div class="nav-node nn-tab" style="color:var(--orange)">Pay</div>
-            <div class="vline"></div>
+            <div class="nn nn-tab" style="color:var(--orange)">Pay</div><div class="vl"></div>
             <div class="branch">
-              <div class="nav-node nn-sub">eGift</div><div class="vline"></div>
-              <div class="nav-node nn-sub">Countries</div><div class="vline"></div>
-              <div class="nav-node nn-sub">Categories</div><div class="vline"></div>
-              <div class="nav-node nn-sub">Brands</div><div class="vline"></div>
-              <div class="nav-node nn-sub">Offers</div><div class="vline"></div>
-              <div class="nav-node nn-sub" style="color:var(--orange);border-color:rgba(255,171,74,.5)">Detail+Buy</div>
+              <div class="nn nn-sub">Countries</div><div class="vl"></div><div class="nn nn-sub">Categories</div><div class="vl"></div><div class="nn nn-sub">Brands</div><div class="vl"></div><div class="nn nn-sub">Offers</div><div class="vl"></div><div class="nn nn-sub" style="color:var(--orange);border-color:rgba(255,171,74,.5)">Detail+Buy</div>
             </div>
           </div>
-          <div class="branch"><div class="nav-node nn-tab" style="color:var(--muted)">Profile</div><div class="vline"></div><div class="nav-node nn-sub">Settings</div><div class="vline"></div><div class="nav-node nn-sub">Theme</div></div>
+          <div class="branch"><div class="nn nn-tab" style="color:var(--muted)">Profile</div><div class="vl"></div><div class="nn nn-sub">Settings</div><div class="vl"></div><div class="nn nn-sub">Theme</div></div>
         </div>
       </div>
     </div>
   </div>
 
-  <div class="g2" style="margin-top:36px">
-    <div class="card"><div class="card-cat" style="color:var(--cyan)">Decompose + MVVM</div><div class="card-title">ViewModel inside Component</div><div class="card-body">Each Component creates its ViewModel via <code style="font-family:'JetBrains Mono',monospace;background:rgba(155,114,245,.15);padding:1px 6px;border-radius:4px;font-size:11px">retainedComponent { }</code> from Decompose. This survives Android config changes and iOS view recreation automatically.</div></div>
-    <div class="card"><div class="card-cat" style="color:var(--green)">Type-safe Navigation</div><div class="card-title">Sealed class Config per Component</div><div class="card-body">Every Component has a sealed class Config listing all possible child destinations. Navigation is compile-safe — no string routes, no runtime crashes from typos.</div></div>
+  <div class="g2" style="margin-top:32px">
+    <div class="card"><div class="card-cat" style="color:var(--purple)">ViewModel in Component</div><div class="card-title">retainedComponent { }</div><div class="card-body">Each Decompose Component creates its ViewModel via <code style="font-family:'JetBrains Mono',monospace;background:rgba(155,114,245,.12);padding:1px 6px;border-radius:3px;font-size:11px">retainedComponent { }</code>. Survives Android config changes and iOS view recreation. No lifecycle wiring needed.</div></div>
+    <div class="card"><div class="card-cat" style="color:var(--cyan)">Type-safe Config</div><div class="card-title">Sealed class per Component</div><div class="card-body">Every Component has a sealed class Config listing all child destinations. Navigation is 100% compile-safe — no string routes, no runtime crashes from typos.</div></div>
   </div>
 </section>
 
 
-<!-- ════════════════ STACK ════════════════ -->
+<!-- ══════════════ STACK ══════════════ -->
 <section id="p-stack" class="panel">
   <p class="sec">Technology Stack</p>
-  <div class="tech-grid">
-    <div class="tech-card"><div class="tech-cat" style="color:var(--cyan)">Core Framework</div><div class="tech-name">Kotlin Multiplatform</div><div class="tech-purpose">Shared logic for Android &amp; iOS in a single Kotlin codebase. androidTarget + iosX64/iosArm64/iosSimulatorArm64.</div><div class="tech-ver">v2.1.0</div></div>
-    <div class="tech-card"><div class="tech-cat" style="color:var(--cyan)">UI Framework</div><div class="tech-name">Compose Multiplatform</div><div class="tech-purpose">Shared declarative UI. One composable tree runs natively on Android and iOS via Skia.</div><div class="tech-ver">v1.7.0</div></div>
-    <div class="tech-card" style="border-color:rgba(155,114,245,.3)"><div class="tech-cat" style="color:var(--purple)">Presentation</div><div class="tech-name">KMP lifecycle-viewmodel ⭐</div><div class="tech-purpose">JetBrains' KMP-compatible ViewModel. Shared in commonMain. Lifecycle-aware on both Android and iOS.</div><div class="tech-ver">v2.9.0</div></div>
-    <div class="tech-card"><div class="tech-cat" style="color:var(--green)">Navigation</div><div class="tech-name">Decompose</div><div class="tech-purpose">Type-safe, back-stack-aware component navigation. ChildStack, ChildSlot. Works in commonMain.</div><div class="tech-ver">v3.1.0</div></div>
-    <div class="tech-card"><div class="tech-cat" style="color:var(--purple)">DI</div><div class="tech-name">Koin</div><div class="tech-purpose">KMP-first, zero-reflection DI. koin-compose provides koinViewModel() in Composables.</div><div class="tech-ver">v4.0.0</div></div>
-    <div class="tech-card" style="border-color:rgba(155,114,245,.3)"><div class="tech-cat" style="color:var(--purple)">Build Config</div><div class="tech-name">Build-Logic Convention Plugins ⭐</div><div class="tech-purpose">Included build with 7 convention plugins. Feature modules reduce to ~8 lines of build config.</div><div class="tech-ver">Gradle 8.x</div></div>
-    <div class="tech-card"><div class="tech-cat" style="color:var(--orange)">Networking</div><div class="tech-name">Ktor Client</div><div class="tech-purpose">Async HTTP + WebSocket. OkHttp engine on Android, Darwin on iOS. Auth, retry, logging interceptors.</div><div class="tech-ver">v3.0.0</div></div>
-    <div class="tech-card"><div class="tech-cat" style="color:var(--orange)">Serialization</div><div class="tech-name">kotlinx.serialization</div><div class="tech-purpose">Compile-time safe JSON parsing. KMP-first. Used for all DTOs.</div><div class="tech-ver">v1.7.3</div></div>
-    <div class="tech-card"><div class="tech-cat" style="color:var(--green)">Local DB</div><div class="tech-name">SQLDelight 2</div><div class="tech-purpose">Type-safe SQL with Kotlin code generated at compile time. Android + iOS drivers via expect/actual.</div><div class="tech-ver">v2.0.2</div></div>
-    <div class="tech-card"><div class="tech-cat" style="color:var(--green)">Preferences</div><div class="tech-name">Multiplatform Settings</div><div class="tech-purpose">Key-value storage: theme mode, auth session flags. Wraps SharedPreferences/UserDefaults.</div><div class="tech-ver">v1.2.0</div></div>
-    <div class="tech-card"><div class="tech-cat" style="color:var(--cyan)">Images</div><div class="tech-name">Coil 3</div><div class="tech-purpose">KMP async image loading with disk + memory cache. Ktor3 network fetcher included.</div><div class="tech-ver">v3.0.4</div></div>
-    <div class="tech-card"><div class="tech-cat" style="color:var(--purple)">Async</div><div class="tech-name">kotlinx.coroutines</div><div class="tech-purpose">viewModelScope, StateFlow for state, SharedFlow for one-time events. KMP-first.</div><div class="tech-ver">v1.9.0</div></div>
-    <div class="tech-card"><div class="tech-cat" style="color:var(--muted)">Logging</div><div class="tech-name">Napier</div><div class="tech-purpose">KMP logging wrapper. Maps to Logcat on Android, os_log on iOS.</div><div class="tech-ver">v2.7.1</div></div>
-    <div class="tech-card"><div class="tech-cat" style="color:var(--muted)">Static Analysis</div><div class="tech-name">Detekt</div><div class="tech-purpose">KMP-aware static analysis. Applied to all modules via esdiac.detekt convention plugin.</div><div class="tech-ver">v1.23.7</div></div>
-    <div class="tech-card"><div class="tech-cat" style="color:var(--pink)">VoIP — Android</div><div class="tech-name">WebRTC / SIP SDK</div><div class="tech-purpose">Voice call engine. Foreground service. DTMF. Exposed via VoipEngine expect/actual.</div><div class="tech-ver">Platform</div></div>
-    <div class="tech-card"><div class="tech-cat" style="color:var(--pink)">VoIP — iOS</div><div class="tech-name">CallKit + WebRTC</div><div class="tech-purpose">Native iOS call UI, PushKit voip notifications, background calling support.</div><div class="tech-ver">Platform</div></div>
-    <div class="tech-card"><div class="tech-cat" style="color:var(--orange)">Payments</div><div class="tech-name">Stripe SDK</div><div class="tech-purpose">Tokenized payment. No card data stored. PCI DSS scope minimised.</div><div class="tech-ver">Latest</div></div>
-    <div class="tech-card"><div class="tech-cat" style="color:var(--muted)">CI/CD</div><div class="tech-name">GitHub Actions</div><div class="tech-purpose">ubuntu-latest for commonTest + lint. macos-latest for iOS builds. Play Store + TestFlight deploy on tag.</div><div class="tech-ver">–</div></div>
+  <div class="tgrid">
+    <div class="tc"><div class="tc-cat" style="color:var(--cyan)">Core Framework</div><div class="tc-name">Kotlin Multiplatform</div><div class="tc-purpose">Shared business logic + UI for Android & iOS. androidTarget + iosX64/iosArm64/iosSim.</div><div class="tc-ver">v2.1.0</div></div>
+    <div class="tc"><div class="tc-cat" style="color:var(--cyan)">UI</div><div class="tc-name">Compose Multiplatform</div><div class="tc-purpose">Shared declarative UI. One composable tree, rendered natively on Android (Compose) and iOS (Skia).</div><div class="tc-ver">v1.7.0</div></div>
+    <div class="tc" style="border-color:rgba(252,211,77,.3)"><div class="tc-cat" style="color:var(--yellow)">Presentation ⭐</div><div class="tc-name">KMP lifecycle-viewmodel</div><div class="tc-purpose">ViewModel() from org.jetbrains.androidx.lifecycle. No base class. Direct StateFlow + SharedFlow in each VM.</div><div class="tc-ver">v2.9.0</div></div>
+    <div class="tc"><div class="tc-cat" style="color:var(--green)">Navigation</div><div class="tc-name">Decompose</div><div class="tc-purpose">Type-safe ChildStack navigation. ViewModel created via retainedComponent{}. Shared in commonMain.</div><div class="tc-ver">v3.1.0</div></div>
+    <div class="tc"><div class="tc-cat" style="color:var(--purple)">DI</div><div class="tc-name">Koin</div><div class="tc-purpose">KMP-first, zero-reflection DI. koin-compose provides koinViewModel() in composables.</div><div class="tc-ver">v4.0.0</div></div>
+    <div class="tc" style="border-color:rgba(155,114,245,.3)"><div class="tc-cat" style="color:var(--purple)">Build ⭐</div><div class="tc-name">Build-Logic Convention Plugins</div><div class="tc-purpose">Included build with 6 plugins. Feature modules reduced to ~10 lines of build config.</div><div class="tc-ver">Gradle 8.x</div></div>
+    <div class="tc"><div class="tc-cat" style="color:var(--orange)">Networking</div><div class="tc-name">Ktor Client</div><div class="tc-purpose">Async HTTP. OkHttp on Android, Darwin on iOS. Auth, retry, logging interceptors.</div><div class="tc-ver">v2.0.0</div></div>
+    <div class="tc"><div class="tc-cat" style="color:var(--orange)">Serialization</div><div class="tc-name">kotlinx.serialization</div><div class="tc-purpose">Compile-time JSON parsing. KMP-first. All DTOs annotated with @Serializable.</div><div class="tc-ver">v1.7.3</div></div>
+    <div class="tc"><div class="tc-cat" style="color:var(--green)">Local DB</div><div class="tc-name">SQLDelight 2</div><div class="tc-purpose">Type-safe SQL with Kotlin code generated at compile time. Cache-first offline strategy.</div><div class="tc-ver">v2.0.2</div></div>
+    <div class="tc"><div class="tc-cat" style="color:var(--green)">Preferences</div><div class="tc-name">Multiplatform Settings</div><div class="tc-purpose">Key-value storage: ThemeMode, session flags. Wraps SharedPreferences/UserDefaults.</div><div class="tc-ver">v1.2.0</div></div>
+    <div class="tc"><div class="tc-cat" style="color:var(--cyan)">Images</div><div class="tc-name">Coil 3</div><div class="tc-purpose">KMP async image loading. Disk + memory cache. Ktor3 network fetcher included.</div><div class="tc-ver">v2.0.4</div></div>
+    <div class="tc"><div class="tc-cat" style="color:var(--muted)">Async</div><div class="tc-name">kotlinx.coroutines</div><div class="tc-purpose">viewModelScope, StateFlow.update{}, SharedFlow.emit(). KMP-first.</div><div class="tc-ver">v1.9.0</div></div>
+    <div class="tc"><div class="tc-cat" style="color:var(--muted)">Lint</div><div class="tc-name">Detekt</div><div class="tc-purpose">KMP-aware static analysis. Applied via esdiac.detekt convention plugin. Shared baseline.</div><div class="tc-ver">v1.23.7</div></div>
+    <div class="tc"><div class="tc-cat" style="color:var(--pink)">VoIP — Android</div><div class="tc-name">WebRTC / SIP</div><div class="tc-purpose">Voice engine. Foreground service. DTMF. Behind VoipEngine expect/actual.</div><div class="tc-ver">Platform</div></div>
+    <div class="tc"><div class="tc-cat" style="color:var(--pink)">VoIP — iOS</div><div class="tc-name">CallKit + WebRTC</div><div class="tc-purpose">Native call UI, PushKit voip notifications, background calling.</div><div class="tc-ver">Platform</div></div>
+    <div class="tc"><div class="tc-cat" style="color:var(--orange)">Payments</div><div class="tc-name">Stripe SDK</div><div class="tc-purpose">Tokenized payment. No card data stored locally. PCI DSS scope minimised.</div><div class="tc-ver">Latest</div></div>
+    <div class="tc"><div class="tc-cat" style="color:var(--muted)">CI/CD</div><div class="tc-name">GitHub Actions</div><div class="tc-purpose">ubuntu-latest for commonTest + Detekt. macos-latest for iOS. Play + TestFlight on tag release.</div><div class="tc-ver">–</div></div>
   </div>
 </section>
 
 <footer>
-  <span>ESDIAC TELECOMMUNICATIONS INC — Architecture v2.0 · MVVM + Build-Logic</span>
+  <span>ESDIAC — Architecture v2.0 · MVVM (no base class) · Build-Logic Convention Plugins</span>
   <span>KMP 2.1 · Compose MP 1.7 · Android &amp; iOS · February 2026</span>
 </footer>
 
